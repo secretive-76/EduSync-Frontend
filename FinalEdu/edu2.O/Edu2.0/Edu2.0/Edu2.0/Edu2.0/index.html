@@ -85,7 +85,7 @@ localStorage.setItem('currentUserName', (result.user && result.user.username) ||
                 }
             } catch (error) {
                 console.error("Login Error:", error);
-                alert("Connection failed. Ensure your backend server is running on port 5000.");
+                alert("Connection failed. Please try again in a moment.");
                 loginButton.disabled = false;
                 loginButton.textContent = "Login 🚀";
             }
