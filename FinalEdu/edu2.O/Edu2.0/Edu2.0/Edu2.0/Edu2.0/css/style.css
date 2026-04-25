@@ -1,0 +1,1310 @@
+/* --- Global Variables (Merged Earth/Brown Theme) --- */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+:root {
+    --primary-burgundy: #834814;
+    --secondary-gold: #a05f0f;
+    --bg-cream: #fff9f5;
+    --text-dark: #2d2d2d;
+    --transition: all 0.3s ease;
+    --primary: var(--primary-burgundy);
+    --primary-light: #82500e;
+    --sidebar-bg: #3e2723;
+    --bg-light: var(--bg-cream);
+    --border: #e8d7cc;
+    --white: #FFFFFF;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --text-main: var(--text-dark);
+    --text-muted: #d5cfd1;
+}
+
+:root[data-theme="light"],
+:root.light-theme,
+:root.light-mode {
+    color-scheme: light;
+}
+
+:root[data-theme="dark"],
+:root.dark-theme,
+:root.dark-mode {
+    --bg-cream: #1a1a1a;
+    --text-main: #f5f5f5;
+    --text-dark: #f5f5f5;
+    --primary-burgundy: #c94c4c;
+    --primary: var(--primary-burgundy);
+    --primary-light: #e08585;
+    --card-bg: #383838;
+    --bg-light: #1a1a1a;
+    --border: #3f3f3f;
+    --text-muted: #cccccc;
+    --sidebar-bg: #202020;
+    --surface-strong: #2d2d2d;
+    --input-bg-dark: #333333;
+    --input-border-dark: #8b0000;
+    --info-cyan: #00e5ff;
+}
+
+/* GLOBAL MIDNIGHT SWEEP - Catch all remaining light backgrounds */
+:root[data-theme="dark"] [style*="background: white"],
+:root[data-theme="dark"] [style*="background:white"],
+:root[data-theme="dark"] [style*="background: #fff"],
+:root[data-theme="dark"] [style*="background:#fff"],
+:root[data-theme="dark"] [style*="background: #f"],
+:root[data-theme="dark"] [style*="background: rgb(255"],
+:root[data-theme="dark"] [style*="background-color: white"],
+:root[data-theme="dark"] [style*="background-color: #fff"],
+:root[data-theme="dark"] [style*="background-color:#fff"],
+:root[data-theme="dark"] [style*="background-color: rgb(255"],
+:root[data-theme="dark"] [style*="backgroundColor: white"],
+:root[data-theme="dark"] [style*="backgroundColor: #fff"] {
+    background-color: #2d2d2d !important;
+    background: #2d2d2d !important;
+}
+
+* { 
+    box-sizing: border-box; 
+    font-family: 'Inter', sans-serif; 
+}
+
+:root.no-theme-transition *,
+:root.no-theme-transition *::before,
+:root.no-theme-transition *::after {
+    transition: none !important;
+    animation: none !important;
+}
+
+body { 
+    margin: 0; 
+    background-image: url('../dashboard.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    display: flex; 
+    min-height: 100vh; 
+    color: var(--text-main);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+:root.no-theme-transition body {
+    transition: none !important;
+}
+
+/* Disable transitions on selected pages for instant theme/page rendering */
+body.expenses-page,
+body.cgpa-page,
+body.calculator-page,
+body.expenses-page *,
+body.cgpa-page *,
+body.calculator-page *,
+body.expenses-page *::before,
+body.cgpa-page *::before,
+body.calculator-page *::before,
+body.expenses-page *::after,
+body.cgpa-page *::after,
+body.calculator-page *::after {
+    transition: none !important;
+}
+
+:root[data-theme="dark"] [style*="#64748b"],
+:root.dark-mode [style*="#64748b"],
+body.dark-mode [style*="#64748b"],
+body.dark-theme [style*="#64748b"] {
+    color: var(--text-muted) !important;
+}
+
+/* Highlight for the currently selected date in Routine */
+.selected-date-active {
+    background-color: rgba(139, 69, 19, 0.15) !important;
+    border: 2px solid #8B4513 !important;
+    box-shadow: 0 0 10px rgba(139, 69, 19, 0.2);
+    transform: scale(1.02);
+    transition: all 0.3s ease;
+}
+
+/* Temporary highlight for selected date */
+
+.day.selected-highlight {
+
+    background-color: rgba(139, 69, 19, 0.15) !important; /* Transparent SaddleBrown */
+
+    border: 2px solid var(--primary);
+
+    transition: all 0.2s ease;
+
+}
+
+
+
+/* --- Login & Register Page --- */
+
+.login-body { 
+
+    margin: 0; 
+
+    height: 100vh; 
+
+    display: flex; 
+
+    justify-content: center; 
+
+    align-items: center; 
+
+    background: var(--bg-cream);
+
+}
+
+
+
+.login-card { 
+
+    background: var(--card-bg); 
+
+    padding: 40px; 
+
+    border-radius: 20px; 
+
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3); 
+
+    width: 100%; 
+
+    max-width: 400px; 
+
+    text-align: center;
+
+    border-top: 8px solid var(--primary-burgundy);
+
+    transition: background-color 0.3s, color 0.3s;
+
+}
+
+.theme-toggle {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-main);
+    border-radius: 999px;
+    min-width: 44px;
+    height: 44px;
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    transition: background-color 0.3s, color 0.3s, transform 0.2s ease;
+}
+
+.theme-toggle:hover {
+    transform: translateY(-1px);
+}
+
+.theme-toggle-fixed {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 1200;
+}
+
+.app-notification-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.25);
+    z-index: 2500;
+}
+
+.app-notification {
+    width: min(92vw, 420px);
+    display: grid;
+    grid-template-columns: 30px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid #d6c4bc;
+    background: #fff7f4;
+    color: #3e2723;
+    box-shadow: 0 16px 30px rgba(62, 39, 35, 0.22);
+}
+
+.app-notification-icon {
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+.app-notification-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.app-notification-close {
+    border: 1px solid #c9b3ab;
+    background: #ffffff;
+    color: #5a3a34;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.app-notification-success {
+    border-color: #a8c9ba;
+    background: #eef9f3;
+    color: #1f5132;
+}
+
+.app-notification-error {
+    border-color: #e0a8a8;
+    background: #fff1f1;
+    color: #7a1f1f;
+}
+
+.app-notification-info {
+    border-color: #d6c4bc;
+    background: #fff7f4;
+    color: #3e2723;
+}
+
+:root[data-theme="dark"] .app-notification-overlay,
+:root.dark-mode .app-notification-overlay,
+body.dark-mode .app-notification-overlay {
+    background: rgba(0, 0, 0, 0.45);
+}
+
+:root[data-theme="dark"] .app-notification,
+:root.dark-mode .app-notification,
+body.dark-mode .app-notification {
+    border-color: #5b4742;
+    background: #2e2726;
+    color: #f1e8e6;
+}
+
+:root[data-theme="dark"] .app-notification-close,
+:root.dark-mode .app-notification-close,
+body.dark-mode .app-notification-close {
+    border-color: #6b5a56;
+    background: #3a312f;
+    color: #f5ecea;
+}
+
+:root[data-theme="dark"] .app-notification-success,
+:root.dark-mode .app-notification-success,
+body.dark-mode .app-notification-success {
+    border-color: #2f7a56;
+    background: #1f3a2f;
+    color: #d8f7e7;
+}
+
+:root[data-theme="dark"] .app-notification-error,
+:root.dark-mode .app-notification-error,
+body.dark-mode .app-notification-error {
+    border-color: #8f3b3b;
+    background: #3d2626;
+    color: #ffdede;
+}
+
+:root[data-theme="dark"] .app-notification-info,
+:root.dark-mode .app-notification-info,
+body.dark-mode .app-notification-info {
+    border-color: #6b5350;
+    background: #2e2726;
+    color: #f1e8e6;
+}
+
+
+
+/* --- Sidebar Container (Fixed & Flex) --- */
+.sidebar { 
+    width: 260px; 
+    background: var(--sidebar-bg); /* Dark Coffee */
+    color: white; 
+    padding: 30px 20px; 
+    position: fixed; 
+    top: 0; 
+    left: 0;
+    height: 100vh; 
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar .logo { 
+    font-size: 1.6rem; 
+    font-weight: 800; 
+    margin-bottom: 40px; 
+    text-align: center;
+    color: var(--border); /* Latte */
+    letter-spacing: 1px;
+}
+
+/* --- Navigation List --- */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Fixes the "Blue Text" and restores Brown Theme */
+.sidebar-nav a { 
+    display: flex;
+    align-items: center;
+    color: #D7CCC8 !important; /* Latte Color */
+    text-decoration: none;      /* No Blue Underline */
+    padding: 12px 15px; 
+    border-radius: 12px; 
+    margin-bottom: 8px; 
+    transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.95rem;
+}
+
+/* Hover & Active states */
+.sidebar-nav a:hover, 
+.sidebar-nav a.active { 
+    background: var(--primary); /* SaddleBrown */
+    color: white !important; 
+    transform: translateX(5px);
+}
+
+/* --- THE RED LOGOUT BUTTON (Locked at Bottom) --- */
+.sidebar-footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: center;
+    padding-top: 14px;
+}
+
+.logout-btn {
+    width: 160px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1.6px solid #800020;
+    background: transparent;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.logout-btn i {
+    font-size: 14px;
+}
+
+.logout-btn:hover {
+    background: #800020;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(128, 0, 32, 0.35);
+}
+
+.logout-btn:focus-visible {
+    outline: 2px solid #800020;
+    outline-offset: 2px;
+}
+
+
+/* --- Main Content Layout --- */
+
+.main-content { 
+
+    margin-left: 260px; /* Offset for the fixed sidebar */
+
+    flex-grow: 1; 
+
+    padding: 40px; 
+
+    min-height: 100vh;
+
+    background-attachment: fixed;
+
+    /* Optional: Added slight transparency to content area to show background better */
+
+    background: rgba(239, 235, 233, 0.85);
+    transition: background-color 0.3s, color 0.3s;
+
+}
+
+:root[data-theme="dark"] .main-content {
+    background: rgba(26, 26, 26, 0.88);
+}
+
+
+
+/* --- Dashboard Cards & Grids --- */
+
+.card { 
+
+    background: var(--card-bg); 
+
+    padding: 25px; 
+
+    border-radius: 18px; 
+
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+
+    border: 1px solid var(--border); 
+
+    border-left: 6px solid var(--primary); /* Signature brown accent */
+
+    margin-bottom: 25px;
+
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s, color 0.3s;
+
+}
+
+.dash-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s, color 0.3s;
+}
+
+:root[data-theme="dark"] .card,
+:root[data-theme="dark"] .dash-card,
+:root[data-theme="dark"] .attendance-page .card,
+:root[data-theme="dark"] .routine-page .card,
+:root[data-theme="dark"] .expenses-page .card,
+:root[data-theme="dark"] .cgpa-page .card,
+:root[data-theme="dark"] .calculator-page .card {
+    background: var(--card-bg) !important;
+    color: var(--text-main) !important;
+    border: 1px solid #8b0000 !important;
+}
+
+/* Fix course titles visibility in dark mode */
+:root[data-theme="dark"] .attendance-page #attendanceCards h3 {
+    color: #ffffff !important;
+}
+
+:root[data-theme="light"] .attendance-page .attendance-summary-note,
+:root.light-theme .attendance-page .attendance-summary-note,
+:root.light-mode .attendance-page .attendance-summary-note {
+    color: #000000 !important;
+}
+
+/* CGPA strategist card readability in dark mode */
+:root[data-theme="dark"] #courseContainer .course-card,
+:root.dark-mode #courseContainer .course-card,
+body.dark-mode #courseContainer .course-card {
+    background: #1e1e1e !important;
+    color: #f5f5f5 !important;
+}
+
+:root[data-theme="dark"] #courseContainer .course-card .course-title,
+:root.dark-mode #courseContainer .course-card .course-title,
+body.dark-mode #courseContainer .course-card .course-title {
+    color: #ff4d4d !important;
+}
+
+:root[data-theme="dark"] #courseContainer .course-card .course-meta,
+:root[data-theme="dark"] #courseContainer .course-card .input-label,
+:root[data-theme="dark"] #courseContainer .course-card .course-helper-text,
+:root.dark-mode #courseContainer .course-card .course-meta,
+:root.dark-mode #courseContainer .course-card .input-label,
+:root.dark-mode #courseContainer .course-card .course-helper-text,
+body.dark-mode #courseContainer .course-card .course-meta,
+body.dark-mode #courseContainer .course-card .input-label,
+body.dark-mode #courseContainer .course-card .course-helper-text {
+    color: #cccccc !important;
+}
+
+:root[data-theme="dark"] #courseContainer .course-card .ct-mark-label,
+:root[data-theme="dark"] #courseContainer .course-card .ct-mark-input,
+:root.dark-mode #courseContainer .course-card .ct-mark-label,
+:root.dark-mode #courseContainer .course-card .ct-mark-input,
+body.dark-mode #courseContainer .course-card .ct-mark-label,
+body.dark-mode #courseContainer .course-card .ct-mark-input {
+    color: #ffffff !important;
+}
+
+/* CGPA Strategist summary and labels in dark mode */
+:root[data-theme="dark"] body.cgpa-page .card p,
+:root[data-theme="dark"] body.cgpa-page .card label,
+:root[data-theme="dark"] body.cgpa-page .card span,
+:root.dark-mode body.cgpa-page .card p,
+:root.dark-mode body.cgpa-page .card label,
+:root.dark-mode body.cgpa-page .card span,
+body.dark-mode.cgpa-page .card p,
+body.dark-mode.cgpa-page .card label,
+body.dark-mode.cgpa-page .card span {
+    color: #ecf0f1 !important;
+}
+
+:root[data-theme="dark"] body.cgpa-page #finalGPA,
+:root[data-theme="dark"] body.cgpa-page #plannerTotalGPA,
+:root.dark-mode body.cgpa-page #finalGPA,
+:root.dark-mode body.cgpa-page #plannerTotalGPA,
+body.dark-mode.cgpa-page #finalGPA,
+body.dark-mode.cgpa-page #plannerTotalGPA {
+    color: #ffffff !important;
+}
+
+/* CGPA Calculator summary and labels in dark mode */
+:root[data-theme="dark"] body.calculator-page .card p,
+:root[data-theme="dark"] body.calculator-page .card label,
+:root[data-theme="dark"] body.calculator-page .card span,
+:root[data-theme="dark"] body.calculator-page .card th,
+:root.dark-mode body.calculator-page .card p,
+:root.dark-mode body.calculator-page .card label,
+:root.dark-mode body.calculator-page .card span,
+:root.dark-mode body.calculator-page .card th,
+body.dark-mode.calculator-page .card p,
+body.dark-mode.calculator-page .card label,
+body.dark-mode.calculator-page .card span,
+body.dark-mode.calculator-page .card th {
+    color: #ecf0f1 !important;
+}
+
+:root[data-theme="dark"] body.calculator-page #semGPA,
+:root[data-theme="dark"] body.calculator-page #finalCGPA,
+:root.dark-mode body.calculator-page #semGPA,
+:root.dark-mode body.calculator-page #finalCGPA,
+body.dark-mode.calculator-page #semGPA,
+body.dark-mode.calculator-page #finalCGPA {
+    color: #ffffff !important;
+}
+
+/* CGPA Calculator light-mode text visibility */
+:root[data-theme="light"] body.calculator-page header p,
+:root.light-theme body.calculator-page header p,
+:root.light-mode body.calculator-page header p,
+:root[data-theme="light"] body.calculator-page label,
+:root.light-theme body.calculator-page label,
+:root.light-mode body.calculator-page label,
+:root[data-theme="light"] body.calculator-page th,
+:root.light-theme body.calculator-page th,
+:root.light-mode body.calculator-page th,
+:root[data-theme="light"] body.calculator-page #savedSemestersList,
+:root.light-theme body.calculator-page #savedSemestersList,
+:root.light-mode body.calculator-page #savedSemestersList,
+:root[data-theme="light"] body.calculator-page #savedSemestersList p,
+:root.light-theme body.calculator-page #savedSemestersList p,
+:root.light-mode body.calculator-page #savedSemestersList p,
+:root[data-theme="light"] body.calculator-page #savedSemestersList div[style*="color:#64748b"],
+:root.light-theme body.calculator-page #savedSemestersList div[style*="color:#64748b"],
+:root.light-mode body.calculator-page #savedSemestersList div[style*="color:#64748b"] {
+    color: #000000 !important;
+}
+
+
+
+.card:hover {
+
+    transform: translateY(-5px);
+
+    box-shadow: 0 12px 24px rgba(62, 39, 35, 0.15);
+
+}
+
+
+
+.stat-val { 
+
+    font-size: 2rem; 
+
+    font-weight: 800; 
+
+    color: var(--primary); 
+
+}
+
+
+
+/* --- Forms & Inputs --- */
+
+input, select { 
+
+    width: 100%; 
+
+    padding: 12px; 
+
+    margin: 10px 0; 
+
+    border: 1.5px solid var(--border); 
+
+    border-radius: 10px; 
+
+    outline: none;
+
+    font-size: 0.95rem;
+
+    transition: border-color 0.3s;
+
+}
+
+
+
+input:focus {
+
+    border-color: var(--primary-burgundy);
+    box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.18);
+
+}
+
+
+
+.btn-main { 
+
+    background: var(--primary-burgundy); 
+
+    color: white; 
+
+    border: none; 
+
+    padding: 12px 25px; 
+
+    border-radius: 10px; 
+
+    cursor: pointer; 
+
+    font-weight: 700; 
+
+    width: 100%;
+
+    transition: var(--transition);
+
+}
+
+
+
+.btn-main:hover {
+
+    background: #6f001b;
+
+    transform: scale(1.02);
+
+    box-shadow: 0 5px 15px rgba(128, 0, 32, 0.3);
+
+}
+
+:root[data-theme="dark"] .btn-main:hover {
+    background: #e08585;
+    color: #1f1f1f;
+}
+
+
+
+/* --- Calendar (Merged Visuals) --- */
+
+.calendar-grid { 
+
+    display: grid; 
+
+    grid-template-columns: repeat(7, 1fr); 
+
+    gap: 2px; 
+
+    background: rgba(131, 72, 20, 0.15); 
+
+    border-radius: 12px; 
+
+    overflow: hidden; 
+
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+
+}
+
+
+
+.day-name { 
+
+    background: var(--primary); 
+
+    color: white; 
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+
+    padding: 12px; 
+
+    text-align: center; 
+
+    font-weight: bold;
+
+    font-size: 0.85rem; 
+
+}
+
+
+
+.day { 
+
+    background: #ffffff; 
+
+    min-height: 110px; 
+
+    padding: 10px; 
+
+    cursor: pointer; 
+
+    transition: all 0.3s ease;
+
+}
+
+
+
+.day:hover { 
+    background: #fce7f3;
+    border: 1px solid #fbcfe8;
+}
+
+.day.today { 
+    background: #FFF3E0; 
+    border: 2px solid var(--primary); 
+}
+
+.active-date {
+    background-color: rgba(188, 76, 160, 0.15) !important;
+    border: 1px solid #fbcfe8 !important;
+    transition: all 0.3s ease;
+}
+
+/* Dark mode calendar grid styling */
+:root[data-theme="dark"] .calendar-grid {
+    background: rgba(45, 45, 45, 0.6);
+}
+
+:root[data-theme="dark"] .day {
+    background: #2a2a2a;
+    color: var(--text-main);
+}
+
+:root[data-theme="dark"] .day:hover {
+    background: #353535;
+    border: 1px solid #514848;
+}
+
+:root[data-theme="dark"] .day.today {
+    background: #2f2629;
+    border: 2px solid var(--primary);
+}
+
+:root[data-theme="dark"] .day-name {
+    background: var(--primary);
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+:root[data-theme="dark"] .day-name {
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Ensure date numbers are visible in dark mode */
+:root[data-theme="dark"] .date-number {
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .day div {
+    color: #ffffff !important;
+}
+
+/* Calendar header dark mode */
+:root[data-theme="dark"] .calendar-header {
+    background: #2d2d2d !important;
+    color: var(--text-main) !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+:root[data-theme="dark"] .calendar-header h1 {
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .calendar-header button {
+    background: #383838 !important;
+    color: #ffffff !important;
+    border: 1px solid #555 !important;
+}
+
+:root[data-theme="dark"] .calendar-header input {
+    background: #333333 !important;
+    color: #ffffff !important;
+    border: 1px solid #555 !important;
+}
+
+/* Ensure event tags remain visible in dark mode */
+:root[data-theme="dark"] .event-tag {
+    background: var(--primary) !important;
+    color: #ffffff !important;
+}
+
+/* Category-specific calendar event tags in dark mode */
+:root[data-theme="dark"] .event-tag.academic,
+:root[data-theme="dark"] .event-tag.event-academic,
+:root.dark-mode .event-tag.academic,
+:root.dark-mode .event-tag.event-academic,
+body.dark-mode .event-tag.academic,
+body.dark-mode .event-tag.event-academic {
+    background: linear-gradient(135deg, rgba(255, 121, 198, 0.96), rgba(255, 85, 145, 0.88)) !important;
+    border: 1px solid rgba(255, 121, 198, 0.82) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 1px rgba(255, 121, 198, 0.16), 0 3px 10px rgba(255, 121, 198, 0.18);
+}
+
+:root[data-theme="dark"] .event-tag.personal,
+:root[data-theme="dark"] .event-tag.event-personal,
+:root.dark-mode .event-tag.personal,
+:root.dark-mode .event-tag.event-personal,
+body.dark-mode .event-tag.personal,
+body.dark-mode .event-tag.event-personal {
+    background: linear-gradient(135deg, rgba(139, 233, 253, 0.96), rgba(81, 207, 255, 0.88)) !important;
+    border: 1px solid rgba(139, 233, 253, 0.82) !important;
+    color: #0b0b0b !important;
+    box-shadow: 0 0 0 1px rgba(139, 233, 253, 0.16), 0 3px 10px rgba(139, 233, 253, 0.18);
+}
+
+:root[data-theme="dark"] .event-tag.social,
+:root[data-theme="dark"] .event-tag.event-social,
+:root.dark-mode .event-tag.social,
+:root.dark-mode .event-tag.event-social,
+body.dark-mode .event-tag.social,
+body.dark-mode .event-tag.event-social {
+    background: linear-gradient(135deg, rgba(80, 250, 123, 0.96), rgba(30, 215, 96, 0.88)) !important;
+    border: 1px solid rgba(80, 250, 123, 0.82) !important;
+    color: #0b0b0b !important;
+    box-shadow: 0 0 0 1px rgba(80, 250, 123, 0.16), 0 3px 10px rgba(80, 250, 123, 0.18);
+}
+
+:root[data-theme="dark"] .event-tag.urgent,
+:root[data-theme="dark"] .event-tag.event-urgent,
+:root.dark-mode .event-tag.urgent,
+:root.dark-mode .event-tag.event-urgent,
+body.dark-mode .event-tag.urgent,
+body.dark-mode .event-tag.event-urgent {
+    background: linear-gradient(135deg, rgba(255, 85, 85, 0.96), rgba(255, 87, 87, 0.88)) !important;
+    border: 1px solid rgba(255, 85, 85, 0.84) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 1px rgba(255, 85, 85, 0.18), 0 3px 10px rgba(255, 85, 85, 0.18);
+}
+
+/* Ensure alarm/reminder tags are visible in dark mode */
+:root[data-theme="dark"] .reminder-tag {
+    background: #2a2a2a !important;
+    color: #ffeb3b !important;
+    border: 1px solid #ffeb3b !important;
+}
+
+/* Calendar event modal dark mode */
+:root[data-theme="dark"] .calendar-page .modal-content {
+    background: #2d2d2d !important;
+    color: var(--text-main) !important;
+    border-top: 5px solid var(--primary) !important;
+}
+
+:root[data-theme="dark"] .calendar-page #eventListContainer {
+    background: #1e1e1e !important;
+}
+
+:root[data-theme="dark"] .calendar-page .event-list-row {
+    background: #242424 !important;
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .calendar-page input,
+:root[data-theme="dark"] .calendar-page select {
+    background: #333333 !important;
+    color: #ffffff !important;
+    border: 1px solid #555 !important;
+}
+
+:root[data-theme="dark"] .calendar-page h3,
+:root[data-theme="dark"] .calendar-page h4,
+:root[data-theme="dark"] .calendar-page label {
+    color: #ffffff !important;
+}
+
+/* Daily Routine performance analytics chart dark mode */
+:root[data-theme="dark"] .routine-page .modal-content {
+    background: #1e272e !important;
+    color: #f5f5f5 !important;
+    border: 1px solid #3f4a54 !important;
+}
+
+:root[data-theme="dark"] .routine-page .chart-container {
+    background: #1e272e !important;
+    border-radius: 12px;
+    padding: 8px;
+}
+
+:root[data-theme="dark"] .routine-page .btn-action {
+    background: #2d3436 !important;
+    color: #ecf0f1 !important;
+    border: 1px solid #4b5563 !important;
+}
+
+:root[data-theme="dark"] .routine-page .btn-action:hover {
+    background: #37474f !important;
+}
+
+:root[data-theme="dark"] .routine-page #statsModal .modal-content h2 {
+    color: #f5f5f5 !important;
+}
+
+
+
+.event-tag { 
+
+    background: var(--primary); 
+
+    color: white; 
+
+    font-size: 0.75rem; 
+
+    padding: 3px 6px; 
+
+    border-radius: 5px; 
+
+    margin-top: 5px; 
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+}
+
+
+
+/* --- Status Badges --- */
+
+.status-badge { 
+
+    padding: 6px 12px; 
+
+    border-radius: 8px; 
+
+    font-weight: bold; 
+
+    font-size: 0.85rem; 
+
+}
+
+.status-safe { background: #E8F5E9; color: #2e7d44; }
+
+.status-warn { background: #FFF3E0; color: #EF6C00; }
+
+
+
+/* --- Routine/Course Specifics --- */
+
+.course-setup { 
+
+    background: #fdfaf9; 
+
+    border: 2px dashed var(--border); 
+
+    padding: 25px; 
+
+    border-radius: 15px; 
+
+}
+
+
+
+.modal-content { 
+
+    background: var(--bg-light); 
+
+    padding: 30px; 
+
+    border-radius: 20px; 
+
+    width: 350px; 
+    border-top: 10px solid var(--primary);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+
+}  
+/* --- Dashboard Specific "Cool" Styles --- */
+
+/* --- The Parent Grid --- */
+.stat-grid {
+    display: grid;
+    /* This sets the width. Adjust 320px to make them wider/narrower */
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+    gap: 25px;
+    margin-bottom: 30px;
+    
+    /* CORE FIX: This forces all grid items in a row to the same height */
+    align-items: stretch; 
+}
+
+/* --- The Link Wrapper --- */
+.nav-card {
+    text-decoration: none;
+    display: flex; /* Necessary so the <a> tag doesn't collapse */
+    align-items: stretch;
+}
+
+/* --- The "Cool" Flexible Card --- */
+.dash-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 25px;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    
+    /* Use min-height so they start looking good, but can grow */
+    min-height: 180px; 
+    
+    /* CORE FIX: Forces the card to fill the entire height of the grid row */
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    /* Your Brown Design Theme */
+    box-shadow: 
+        0 0 0 2px var(--border),
+        0 0 0 6px var(--primary),
+        inset 0 0 15px rgba(62, 39, 35, 0.05);
+}
+
+.dash-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(62, 39, 35, 0.2);
+}
+
+.dash-card h3 {
+    margin-top: 0;
+    font-size: 1rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* --- Ultra-Cool Floating Quick Tip --- */
+.floating-tip {
+    margin-top: 50px;
+    padding: 20px 0;
+    border-top: 1px solid rgba(139, 69, 19, 0.2); /* Very faint line */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.floating-tip::before {
+    content: "QUICK TIP";
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--primary);
+    margin-bottom: 10px;
+    opacity: 0.7;
+}
+
+.floating-tip p {
+    font-size: 1.1rem;
+    font-weight: 500;
+    line-height: 1.5;
+    margin: 0;
+    /* Fancy Brown Gradient Text */
+    background: linear-gradient(90deg, #3E2723, #8B4513);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    max-width: 600px;
+}
+
+.floating-tip .icon-spark {
+    margin-right: 10px;
+    filter: sepia(1) saturate(5) hue-rotate(340deg); /* Makes icon match brown theme */
+}
+
+.auth-link {
+    color: var(--primary-burgundy);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.alarm-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(45, 45, 45, 0.76);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.alarm-modal-card {
+    width: min(90vw, 520px);
+    background: linear-gradient(180deg, #ffffff 0%, var(--bg-cream) 100%);
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 30px 70px rgba(45, 45, 45, 0.32);
+    border: 1.5px solid var(--primary-burgundy);
+}
+
+.alarm-modal-title {
+    margin: 0 0 12px 0;
+    color: var(--primary-burgundy);
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.alarm-modal-message {
+    margin: 0 0 28px 0;
+    color: var(--text-dark);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.alarm-dismiss-btn {
+    width: 100%;
+    font-size: 1.05rem;
+    padding: 14px 18px;
+}
+
+.routine-alarm-toggle {
+    background: #f8ecf0;
+    color: var(--primary-burgundy);
+    transition: var(--transition);
+}
+
+.routine-alarm-toggle.enabled {
+    background: var(--primary-burgundy);
+    color: #ffffff;
+}
+
+.task-ringing {
+    box-shadow: 0 0 0 0 rgba(128, 0, 32, 0.55);
+    animation: routinePulse 1.6s infinite;
+}
+
+@keyframes routinePulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(128, 0, 32, 0.45);
+    }
+    70% {
+        box-shadow: 0 0 0 12px rgba(128, 0, 32, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(128, 0, 32, 0);
+    }
+}
+
+/* DARK MODE - LIST ITEMS AND TEXT */
+:root[data-theme="dark"] #upcomingEventsList li,
+:root[data-theme="dark"] #dailyRoutineList li,
+:root[data-theme="dark"] .routine-page .task-item,
+:root[data-theme="dark"] .event-card,
+:root[data-theme="dark"] .event-list-row,
+:root[data-theme="dark"] .expense-item,
+:root[data-theme="dark"] .transaction {
+    background: #2d2d2d !important;
+    color: #ffffff !important;
+    border: 1px solid #8b0000 !important;
+}
+
+:root[data-theme="dark"] #upcomingEventsList li div,
+:root[data-theme="dark"] #upcomingEventsList li span,
+:root[data-theme="dark"] #dailyRoutineList li div,
+:root[data-theme="dark"] #dailyRoutineList li span,
+:root[data-theme="dark"] .routine-page .task-item span,
+:root[data-theme="dark"] .routine-page .task-item div {
+    color: #ffffff !important;
+}
+
+/* DARK MODE - CYAN ACCENTS */
+:root[data-theme="dark"] .stat-label,
+:root[data-theme="dark"] .view-more,
+:root[data-theme="dark"] .blue-link,
+:root[data-theme="dark"] .dash-card a
+/*:root[data-theme="dark"] .routine-page .view-more,
+:root[data-theme="dark"] .routine-page a,
+:root[data-theme="dark"] .expenses-page .view-more,
+:root[data-theme="dark"] .expenses-page a*/ {
+    color: var(--info-cyan) !important;
+}
+
+:root[data-theme="dark"] .stat-label:hover,
+:root[data-theme="dark"] .view-more:hover,
+:root[data-theme="dark"] .blue-link:hover,
+:root[data-theme="dark"] .dash-card a:hover,
+:root[data-theme="dark"] .routine-page a:hover,
+:root[data-theme="dark"] .expenses-page a:hover {
+    text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+}
+
+/* DARK MODE - INPUTS */
+:root[data-theme="dark"] input[type="text"],
+:root[data-theme="dark"] input[type="number"],
+:root[data-theme="dark"] input[type="email"],
+:root[data-theme="dark"] input[type="password"],
+:root[data-theme="dark"] input[type="time"],
+:root[data-theme="dark"] input[type="date"],
+:root[data-theme="dark"] select,
+:root[data-theme="dark"] textarea {
+    background: var(--input-bg-dark);
+    color: #ffffff;
+    border: 1px solid var(--input-border-dark);
+}
+
+:root[data-theme="dark"] input[type="text"]::placeholder,
+:root[data-theme="dark"] input[type="number"]::placeholder,
+:root[data-theme="dark"] input[type="email"]::placeholder,
+:root[data-theme="dark"] input[type="password"]::placeholder,
+:root[data-theme="dark"] textarea::placeholder {
+    color: #ded5d5;
+}
+
+/* DARK MODE - HEADINGS AND TEXT */
+:root[data-theme="dark"] h1,
+:root[data-theme="dark"] h2,
+:root[data-theme="dark"] h3,
+:root[data-theme="dark"] h4,
+:root[data-theme="dark"] p,
+:root[data-theme="dark"] label,
+:root[data-theme="dark"] span,
+:root[data-theme="dark"] a,
+:root[data-theme="dark"] button {
+    text-shadow: none !important;
+}
+
+:root[data-theme="dark"] .navbar-brand,
+:root[data-theme="dark"] .logo-text,
+:root[data-theme="dark"] #app-title,
+:root[data-theme="dark"] .sidebar .logo {
+    color: #ffffff !important;
+}
+
+:root[data-theme="dark"] .navbar-brand i,
+:root[data-theme="dark"] .navbar-brand svg,
+:root[data-theme="dark"] .navbar-brand img,
+:root[data-theme="dark"] .logo-text i,
+:root[data-theme="dark"] .logo-text svg,
+:root[data-theme="dark"] .logo-text img,
+:root[data-theme="dark"] #app-title + i,
+:root[data-theme="dark"] #app-title + svg,
+:root[data-theme="dark"] #app-title + img,
+:root[data-theme="dark"] .sidebar .logo i,
+:root[data-theme="dark"] .sidebar .logo svg,
+:root[data-theme="dark"] .sidebar .logo img {
+    color: #ffffff !important;
+    filter: brightness(1.35) invert(1);
+}
+
+@media (max-width: 900px) {
+    .logout-btn {
+        width: 140px;
+        font-size: 14px;
+        padding: 9px 12px;
+        gap: 8px;
+    }
+
+    .logout-btn i {
+        font-size: 13px;
+    }
+}
+

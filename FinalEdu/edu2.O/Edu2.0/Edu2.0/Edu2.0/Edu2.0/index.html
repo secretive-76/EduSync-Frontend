@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | EduSync</title>
+    <script>
+        (function () {
+            try {
+                var root = document.documentElement;
+                var savedTheme = localStorage.getItem('theme');
+                var legacyTheme = localStorage.getItem('edusync-theme');
+                var resolvedTheme = (savedTheme === 'dark' || savedTheme === 'light')
+                    ? savedTheme
+                    : ((legacyTheme === 'dark' || legacyTheme === 'light') ? legacyTheme : 'light');
+
+                if (savedTheme !== 'dark' && savedTheme !== 'light') {
+                    localStorage.setItem('theme', resolvedTheme);
+                }
+                if (legacyTheme !== 'dark' && legacyTheme !== 'light') {
+                    localStorage.setItem('edusync-theme', resolvedTheme);
+                }
+
+                var isDark = resolvedTheme === 'dark';
+                root.setAttribute('data-theme', isDark ? 'dark' : 'light');
+                root.classList.toggle('dark-mode', isDark);
+                root.classList.toggle('dark-theme', isDark);
+                root.classList.toggle('light-mode', !isDark);
+                root.classList.toggle('light-theme', !isDark);
+            } catch (e) {
+                // Keep login usable even if storage is unavailable.
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-body">
+    <button class="theme-toggle theme-toggle-fixed" data-theme-toggle-icon>🌙</button>
+    <div class="login-card">
+        <h1>Welcome to EduSync Life! 🎓✨</h1>
+        <p style="color: #6d4c41; margin-bottom: 25px;">
+            Your all-in-one student companion for productivity, finance, and success. 
+            Please sign in to continue.
+        </p>
+        
+        <input type="email" id="loginEmail" placeholder="Email Address" required>
+        <input type="password" id="loginPass" placeholder="Password" required>
+        
+        <button class="btn-main" id="loginButton" onclick="handleLogin()">Login 🚀</button>
+
+        <p style="margin-top: 12px; font-size: 0.9rem;">
+            <a href="forgot-password.html" style="color: #800020; font-weight: 700; text-decoration: none;">Forgot Password?</a>
+        </p>
+        
+        <p style="margin-top: 20px; font-size: 0.9rem;">
+            Don't have an account? <br>
+            <a href="register.html" style="color: var(--primary); font-weight: bold; text-decoration: none;">Create Account ✍️</a>
+        </p>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Use the synchronized API base URL
+        const apiBaseUrl = 'https://edusync-life-1.onrender.com/api/auth';
+
+        async function handleLogin() {
+            const loginButton = document.getElementById('loginButton');
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPass').value;
+
+            if (!email || !password) {
+                alert('Please enter both email and password so we can sign you in. ✍️');
+                return;
+            }
+
+            // Disable button to prevent double-clicks
+            loginButton.disabled = true;
+            loginButton.textContent = "Checking... ⏳";
+
+            try {
+                // Updated URL to include /api/auth/login
+                const response = await fetch(`${apiBaseUrl}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Save user session and token in the browser
+                    // This ensures that even if the backend returns a slightly different object, 
+// your frontend doesn't crash.
+localStorage.setItem('currentUserEmail', email); 
+localStorage.setItem('currentUserName', (result.user && result.user.username) || 'Student');
+                    
+                    // Save the auth token for protected routes
+                    if (result.token) {
+                        localStorage.setItem('authToken', result.token);
+                    }
+                    
+                    alert('Welcome back! You are successfully logged in. 🎉');
+                    window.location.href = 'dashboard.html';
+                } else {
+                    // Specific check for unverified users
+                    if (response.status === 401 && result.message.toLowerCase().includes('verify')) {
+                        alert('Please verify your email first. Check your inbox and come right back. 📧');
+                    } else {
+                        alert(result.message || 'Those login details did not match. Please try again.');
+                    }
+                    loginButton.disabled = false;
+                    loginButton.textContent = "Login 🚀";
+                }
+            } catch (error) {
+                console.error("Login Error:", error);
+                alert('We could not reach the server. Please make sure the backend is running on port 5000.');
+                loginButton.disabled = false;
+                loginButton.textContent = "Login 🚀";
+            }
+        }
+
+        // Allow pressing "Enter" key to login
+        document.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+    </script>
+</body>
+</html>
