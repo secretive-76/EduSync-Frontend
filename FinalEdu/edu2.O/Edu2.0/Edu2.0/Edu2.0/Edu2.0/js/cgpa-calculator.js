@@ -11,7 +11,7 @@ const gradePoints = {
     F: 0.0
 };
 
-const API_BASE = 'http://localhost:5000/api/academic';
+const API_BASE = 'https://edusync-life-1.onrender.com/api/academic';
 let lastCalculatedCourses = [];
 let cachedSemesters = [];
 

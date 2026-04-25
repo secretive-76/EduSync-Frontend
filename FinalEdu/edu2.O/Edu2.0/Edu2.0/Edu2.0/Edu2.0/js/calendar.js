@@ -4,7 +4,7 @@ let eventsByDate = {};
 let allEvents = [];
 let editingEventId = null;
 
-const API_BASE = 'http://localhost:5000/api/calendar';
+const API_BASE = 'https://edusync-life-1.onrender.com/api/calendar';
 
 function getAuthToken() {
     return localStorage.getItem('authToken');

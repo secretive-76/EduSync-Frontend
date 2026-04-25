@@ -1,6 +1,6 @@
 let courses = [];
 const dirtyCourseIds = new Set();
-const ACADEMIC_API_BASE = 'http://localhost:5000/api/academic';
+const ACADEMIC_API_BASE = 'https://edusync-life-1.onrender.com/api/academic';
 let persistedStrategicTotalGPA = null;
 
 const gpaPoints = {
