@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | EduSync</title>
+    <link rel="stylesheet" href="FinalEdu/edu2.O/Edu2.0/Edu2.0/Edu2.0/Edu2.0/css/style.css">
+</head>
+<body class="login-body">
+    <div class="login-card">
+        <h1>Welcome to EduSync Life! 🎓✨</h1>
+        <p style="color: #6d4c41; margin-bottom: 25px;">
+            Your all-in-one student companion for productivity, finance, and success.
+            Please sign in to continue.
+        </p>
+
+        <input type="email" id="loginEmail" placeholder="Email Address" required>
+        <input type="password" id="loginPass" placeholder="Password" required>
+
+        <button class="btn-main" id="loginButton" onclick="handleLogin()">Login 🚀</button>
+
+        <p style="margin-top: 12px; font-size: 0.9rem;">
+            <a href="forgot-password.html" style="color: #800020; font-weight: 700; text-decoration: none;">Forgot Password?</a>
+        </p>
+
+        <p style="margin-top: 20px; font-size: 0.9rem;">
+            Don't have an account? <br>
+            <a href="FinalEdu/edu2.O/Edu2.0/Edu2.0/Edu2.0/Edu2.0/register.html" style="color: var(--primary); font-weight: bold; text-decoration: none;">Create Account ✍️</a>
+        </p>
+    </div>
+
+    <script>
+        const apiBaseUrl = 'http://localhost:5000/api/auth';
+
+        async function handleLogin() {
+            const loginButton = document.getElementById('loginButton');
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPass').value;
+
+            if (!email || !password) {
+                alert('Please enter both email and password.');
+                return;
+            }
+
+            loginButton.disabled = true;
+            loginButton.textContent = 'Checking... ⏳';
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('currentUserEmail', email);
+                    localStorage.setItem('currentUserName', (result.user && result.user.username) || 'Student');
+                    if (result.token) {
+                        localStorage.setItem('authToken', result.token);
+                    }
+                    alert('Login Successful! 🚀');
+                    window.location.href = 'FinalEdu/edu2.O/Edu2.0/Edu2.0/Edu2.0/Edu2.0/dashboard.html';
+                } else {
+                    if (response.status === 401 && /verify/i.test(result.message || '')) {
+                        alert(result.message || 'Please verify your email first.');
+                    } else {
+                        alert(result.message || 'Invalid credentials.');
+                    }
+                    loginButton.disabled = false;
+                    loginButton.textContent = 'Login 🚀';
+                }
+            } catch (error) {
+                alert('Connection failed. Ensure your backend server is running on port 5000.');
+                loginButton.disabled = false;
+                loginButton.textContent = 'Login 🚀';
+            }
+        }
+
+        document.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+    </script>
+</body>
+</html>
