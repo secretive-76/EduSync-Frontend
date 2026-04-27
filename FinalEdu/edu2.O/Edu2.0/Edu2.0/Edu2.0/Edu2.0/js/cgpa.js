@@ -126,6 +126,27 @@ async function fetchRemoteStrategistSettings(token) {
     return (result.data || [])[0] || {};
 }
 
+async function saveStrategistSettingsToCloud(strategistCourses, strategicTotalGPA) {
+    const response = await fetch(`${ACADEMIC_API_BASE}/strategist-settings`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        body: JSON.stringify({
+            strategicTotalGPA,
+            strategistCourses: strategistCourses.map((course) => buildCoursePayload(course))
+        })
+    });
+
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+        throw new Error('Save failed');
+    }
+
+    return result;
+}
+
 function collectCoursesFromScreen() {
     const collected = courses.map((course) => {
         const rules = courseRules(course.credits);
@@ -311,23 +332,7 @@ async function saveCourseToCloud(courseId) {
         const strategistCourses = collectCoursesFromScreen();
         const plannerTotalEl = document.getElementById('plannerTotalGPA');
         const strategicTotalGPA = plannerTotalEl ? toNumber(plannerTotalEl.innerText, 0) : 0;
-
-        const response = await fetch(`${ACADEMIC_API_BASE}/strategist-settings`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
-            },
-            body: JSON.stringify({
-                strategicTotalGPA,
-                strategistCourses: strategistCourses.map((course) => buildCoursePayload(course))
-            })
-        });
-
-        const result = await response.json();
-        if (!response.ok || !result.success) {
-            throw new Error('Save failed');
-        }
+        await saveStrategistSettingsToCloud(strategistCourses, strategicTotalGPA);
 
         persistedStrategicTotalGPA = strategicTotalGPA;
 
@@ -483,9 +488,34 @@ async function deleteCourse(id) {
     const confirmed = await showConfirmDialog('Are you sure you want to remove this course?');
     if (!confirmed) return;
 
+    const token = localStorage.getItem('token') || getAcademicToken();
+    if (!token) {
+        showToast('Please login to update your planning', 'warning');
+        return;
+    }
+    if (!localStorage.getItem('token')) {
+        localStorage.setItem('token', token);
+    }
+
+    const previousCourses = courses.map((course) => normalizeCourse(course));
+
     courses = courses.filter((course) => course.id !== id);
     dirtyCourseIds.delete(id);
     renderCourses();
+
+    try {
+        const plannerTotalEl = document.getElementById('plannerTotalGPA');
+        const strategicTotalGPA = plannerTotalEl ? toNumber(plannerTotalEl.innerText, 0) : 0;
+
+        await saveStrategistSettingsToCloud(courses, strategicTotalGPA);
+        persistedStrategicTotalGPA = strategicTotalGPA;
+        showToast('Course removed and synced', 'success');
+    } catch (error) {
+        console.error('Failed to delete course from cloud:', error);
+        courses = previousCourses;
+        renderCourses();
+        showToast('Could not remove course from cloud. Try again.', 'error');
+    }
 }
 
 async function initCGPA() {
