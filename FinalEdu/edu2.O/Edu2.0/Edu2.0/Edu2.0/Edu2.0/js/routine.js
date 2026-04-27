@@ -181,7 +181,7 @@ async function addTask() {
     const reminder = document.getElementById('reminderNeeded').checked;
 
     if (!date || !time || !name) {
-        alert('Please fill in both Time and Task.');
+        showToast('Please fill in both time and task description', 'error');
         return;
     }
 
@@ -204,8 +204,9 @@ async function addTask() {
         document.getElementById('reminderNeeded').checked = false;
         await loadRoutine();
         await fetchAllTasks();
+        showToast('Task added successfully!', 'success');
     } catch (error) {
-        alert('Failed to add task.');
+        showToast('Failed to add task. Please try again', 'error');
     }
 }
 
@@ -223,8 +224,9 @@ async function editTask(taskId, currentTitle, currentTime) {
         });
         await loadRoutine();
         await fetchAllTasks();
+        showToast('Task updated successfully!', 'success');
     } catch (error) {
-        alert('Failed to update task.');
+        showToast('Failed to update task. Please try again', 'error');
     }
 }
 
@@ -237,20 +239,23 @@ async function toggleTask(taskId, currentState) {
         });
         await loadRoutine();
         await fetchAllTasks();
+        showToast('Task status updated', 'success');
     } catch (error) {
-        alert('Failed to update task status.');
+        showToast('Failed to update task status. Please try again', 'error');
     }
 }
 
 async function deleteTask(taskId) {
-    if (!confirm('Delete this task?')) return;
+    const confirmed = await showConfirmDialog('Delete this task?');
+    if (!confirmed) return;
 
     try {
         await apiRequest(`${API_BASE}/${taskId}`, { method: 'DELETE' });
         await loadRoutine();
         await fetchAllTasks();
+        showToast('Task deleted successfully', 'success');
     } catch (error) {
-        alert('Failed to delete task.');
+        showToast('Failed to delete task. Please try again', 'error');
     }
 }
 
@@ -287,7 +292,7 @@ function checkReminders() {
                     icon: 'https://cdn-icons-png.flaticon.com/512/311/311024.png'
                 });
             } else {
-                alert(`⏰ REMINDER: ${task.title}`);
+                showToast(`⏰ Reminder: ${task.title}`, 'info');
             }
             reminderLog.add(reminderKey);
         }
@@ -410,7 +415,8 @@ async function toggleTaskAlarm(taskId, currentAlarmEnabled) {
         });
         await loadRoutine();
         await fetchAllTasks();
+        showToast('Alarm setting updated', 'success');
     } catch (error) {
-        alert('Failed to update alarm state.');
+        showToast('Failed to update alarm setting. Please try again', 'error');
     }
 }

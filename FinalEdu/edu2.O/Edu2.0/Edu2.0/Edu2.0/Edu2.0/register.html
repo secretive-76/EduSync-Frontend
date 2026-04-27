@@ -64,11 +64,13 @@
 
             if (!name || !email || !pass) {
                 registerButton.disabled = false;
-                return alert("Please fill all fields.");
+                showToast('Please fill in all fields', 'error');
+                return;
             }
             if (pass !== confirm) {
                 registerButton.disabled = false;
-                return alert("Passwords do not match!");
+                showToast('Passwords do not match', 'error');
+                return;
             }
 
             try {
@@ -86,7 +88,8 @@
                 registerButton.disabled = false;
 
                 if (!response.ok) {
-                    return alert(data.message || data.error || "Signup failed.");
+                    showToast(data.message || data.error || 'Signup failed', 'error');
+                    return;
                 }
 
                 showOtpSection(true);
@@ -95,7 +98,8 @@
             } catch (err) {
                 registerButton.disabled = false;
                 console.error("Connection error:", err);
-                return alert("Cannot connect to server right now. Please try again shortly.");
+                showToast('Cannot connect to server. Please try again', 'error');
+                return;
             }
         }
 
@@ -105,7 +109,8 @@
             const verifyOtpButton = document.getElementById('verifyOtpButton');
 
             if (!email || !otpCode) {
-                return alert('Enter your email and OTP code.');
+                showToast('Please enter your email and OTP code', 'error');
+                return;
             }
 
             verifyOtpButton.disabled = true;
@@ -146,7 +151,8 @@
             const email = document.getElementById('regEmail').value.trim();
 
             if (!email) {
-                return alert('Enter the email address you used to register.');
+                showToast('Please enter the email address you used to register', 'error');
+                return;
             }
 
             try {

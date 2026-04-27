@@ -264,7 +264,7 @@ function generateAttendanceSheet() {
     const credits = Math.max(0, toNumber(creditEl.value));
 
     if (!courseName || credits <= 0) {
-        alert('Please enter a valid Course Name and Credit.');
+        showToast('Please enter a valid course name and credits', 'error');
         return;
     }
 
@@ -296,7 +296,7 @@ function generateAttendanceSheet() {
 async function saveAttendanceSheet(courseId, silent) {
     const token = getToken();
     if (!token) {
-        if (!silent) alert('Please login first to save attendance.');
+        if (!silent) showToast('Please login to save your attendance', 'warning');
         return;
     }
 
@@ -362,7 +362,7 @@ async function saveAttendanceSheet(courseId, silent) {
             saveBtn.style.opacity = '1';
         }
         if (!silent) {
-            alert('Failed to save attendance data.');
+            showToast('Failed to save your attendance. Please try again', 'error');
         }
     }
 }
@@ -370,15 +370,15 @@ async function saveAttendanceSheet(courseId, silent) {
 async function deleteAttendanceSheet(courseId) {
     const token = getToken();
     if (!token) {
-        alert('Please login first to delete attendance.');
+        showToast('Please login to delete your attendance', 'warning');
         return;
     }
 
     const sheet = attendanceSheets.find((item) => item.courseId === courseId);
     if (!sheet) return;
 
-    const confirmed = window.confirm(`Delete attendance course \"${sheet.courseName}\"? This cannot be undone.`);
-    if (!confirmed) return;
+    const dialogConfirmed = await showConfirmDialog(`Delete attendance course "${sheet.courseName}"? This cannot be undone.`);
+    if (!dialogConfirmed) return;
 
     const nextSheets = attendanceSheets.filter((item) => item.courseId !== courseId);
 
@@ -409,7 +409,7 @@ async function deleteAttendanceSheet(courseId) {
         renderSheets();
     } catch (error) {
         console.error('Attendance delete error:', error);
-        alert('Failed to delete attendance course.');
+        showToast('Failed to delete the course. Please try again', 'error');
     }
 }
 

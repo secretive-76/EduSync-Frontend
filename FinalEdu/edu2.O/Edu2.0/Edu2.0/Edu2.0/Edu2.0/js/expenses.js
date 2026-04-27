@@ -80,10 +80,10 @@ async function saveAllowance() {
         if (response.ok) {
             allowance = amt;
             updateUI();
-            alert("Budget synced to cloud! ☁️");
+            showToast('Budget synced to cloud successfully! ☁️', 'success');
         }
     } catch (err) {
-        alert("Failed to save budget.");
+        showToast('Failed to save your budget. Please try again', 'error');
     }
 }
 
@@ -121,7 +121,8 @@ async function processSpending() {
 
 // NOTE: Ensure your backend has a DELETE route for this to work
 async function deleteExpense(id) {
-    if (!confirm("Cancel this expense?")) return;
+    const confirmed = await showConfirmDialog('Cancel this expense?');
+    if (!confirmed) return;
     
     const token = localStorage.getItem('authToken');
 

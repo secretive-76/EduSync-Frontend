@@ -275,8 +275,8 @@ async function saveEvent() {
     const reminder = document.getElementById("reminder").checked;
     const token = getAuthToken();
 
-    if (!title) return alert("Title required");
-    if (!token) return alert('Please login first.');
+    if (!title) return showToast('Please enter an event title', 'error');
+    if (!token) return showToast('Please login first', 'warning');
 
     const categoryOption = document.querySelector('#eventCategory option:checked');
     const category = categoryOption ? categoryOption.textContent.split('(')[0].trim() : 'General';
@@ -306,14 +306,15 @@ async function saveEvent() {
         console.error('Failed to save event:', error);
     }
 
-    alert('Failed to save event.');
+    showToast('Failed to save your event. Please try again', 'error');
 }
 
 async function deleteEvent(eventId) {
     const token = getAuthToken();
     if (!token) return;
 
-    if (!confirm('Delete this event?')) return;
+    const confirmed = await showConfirmDialog('Delete this event?');
+    if (!confirmed) return;
 
     try {
         const response = await fetch(`${API_BASE}/${eventId}`, {

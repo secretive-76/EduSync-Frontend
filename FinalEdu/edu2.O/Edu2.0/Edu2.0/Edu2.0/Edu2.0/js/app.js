@@ -1,3 +1,176 @@
+// ============================================================================
+// TOAST NOTIFICATION SYSTEM - User-Friendly Pop-up Messages
+// ============================================================================
+
+/**
+ * Show a user-friendly toast notification
+ * @param {string} message - The message to display
+ * @param {string} type - Type: 'success', 'error', 'warning', 'info' (default: 'info')
+ * @param {number} duration - Duration in ms (default: 3000)
+ */
+function showToast(message, type = 'info', duration = 3000) {
+    // Create toast container if it doesn't exist
+    let toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toastContainer';
+        toastContainer.className = 'toast-container';
+        document.body.appendChild(toastContainer);
+    }
+
+    // Create toast element
+    const toast = document.createElement('div');
+    const toastId = `toast-${Date.now()}`;
+    toast.id = toastId;
+    toast.className = `toast toast-${type}`;
+
+    // Icon mapping for different types
+    const icons = {
+        success: '✅',
+        error: '❌',
+        warning: '⚠️',
+        info: 'ℹ️'
+    };
+
+    toast.innerHTML = `
+        <span class="toast-icon">${icons[type] || '📢'}</span>
+        <span class="toast-message">${message}</span>
+        <button class="toast-close" onclick="document.getElementById('${toastId}').remove();">✕</button>
+    `;
+
+    toastContainer.appendChild(toast);
+
+    // Auto-remove after duration
+    setTimeout(() => {
+        const toastEl = document.getElementById(toastId);
+        if (toastEl) {
+            toastEl.classList.add('toast-exit');
+            setTimeout(() => toastEl.remove(), 300);
+        }
+    }, duration);
+}
+
+// Make it globally available
+window.showToast = showToast;
+
+// ============================================================================
+// CUSTOM CONFIRMATION DIALOG - Replaces browser confirm() to avoid URL display
+// ============================================================================
+
+/**
+ * Show a custom confirmation dialog without showing the URL
+ * @param {string} message - The confirmation message
+ * @returns {Promise<boolean>} - True if confirmed, false if cancelled
+ */
+function showConfirmDialog(message) {
+    return new Promise((resolve) => {
+        // Create overlay
+        const overlay = document.createElement('div');
+        overlay.id = `confirm-overlay-${Date.now()}`;
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        `;
+
+        // Create dialog
+        const dialog = document.createElement('div');
+        dialog.style.cssText = `
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            text-align: center;
+            animation: slideInUp 0.3s ease-out;
+        `;
+
+        dialog.innerHTML = `
+            <p style="margin: 0 0 24px 0; font-size: 1rem; color: #2d2d2d; line-height: 1.5;">
+                ${message}
+            </p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button class="btn-confirm-cancel" style="
+                    background: #e5e7eb;
+                    color: #374151;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    transition: all 0.2s;
+                ">Cancel</button>
+                <button class="btn-confirm-yes" style="
+                    background: #834814;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    transition: all 0.2s;
+                ">Confirm</button>
+            </div>
+        `;
+
+        overlay.appendChild(dialog);
+        document.body.appendChild(overlay);
+
+        // Add hover effects
+        const cancelBtn = dialog.querySelector('.btn-confirm-cancel');
+        const confirmBtn = dialog.querySelector('.btn-confirm-yes');
+
+        cancelBtn.addEventListener('mouseover', () => {
+            cancelBtn.style.background = '#d1d5db';
+        });
+        cancelBtn.addEventListener('mouseout', () => {
+            cancelBtn.style.background = '#e5e7eb';
+        });
+
+        confirmBtn.addEventListener('mouseover', () => {
+            confirmBtn.style.background = '#6d3811';
+        });
+        confirmBtn.addEventListener('mouseout', () => {
+            confirmBtn.style.background = '#834814';
+        });
+
+        // Handle clicks
+        cancelBtn.addEventListener('click', () => {
+            overlay.remove();
+            resolve(false);
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            overlay.remove();
+            resolve(true);
+        });
+
+        // Handle Escape key
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                document.removeEventListener('keydown', handleEscape);
+                overlay.remove();
+                resolve(false);
+            }
+        };
+        document.addEventListener('keydown', handleEscape);
+    });
+}
+
+// Make it globally available
+window.showConfirmDialog = showConfirmDialog;
+
+
 // --- Authentication & Welcome ---
 function displayWelcome() {
     // UPDATED: Uses 'currentUserName' to match your login route storage

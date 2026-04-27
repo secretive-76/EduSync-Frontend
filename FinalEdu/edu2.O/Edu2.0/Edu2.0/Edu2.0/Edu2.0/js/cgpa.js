@@ -290,7 +290,7 @@ function onGradeChange(courseId, value) {
 async function saveCourseToCloud(courseId) {
     const token = localStorage.getItem('token') || getAcademicToken();
     if (!token) {
-        alert('Please login to save your planning data');
+        showToast('Please login to save your planning', 'warning');
         return;
     }
     if (!localStorage.getItem('token')) {
@@ -364,7 +364,7 @@ function addCourse() {
 
     const courseName = nameInput.value.trim();
     if (!courseName) {
-        alert('Please enter course name');
+        showToast('Please enter a course name', 'error');
         return;
     }
 
@@ -480,7 +480,8 @@ function renderCourses() {
 }
 
 async function deleteCourse(id) {
-    if (!confirm('Remove this course?')) return;
+    const confirmed = await showConfirmDialog('Are you sure you want to remove this course?');
+    if (!confirmed) return;
 
     courses = courses.filter((course) => course.id !== id);
     dirtyCourseIds.delete(id);

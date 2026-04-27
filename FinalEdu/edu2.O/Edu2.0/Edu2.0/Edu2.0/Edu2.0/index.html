@@ -40,7 +40,7 @@
             const password = document.getElementById('loginPass').value;
 
             if (!email || !password) {
-                alert("Please enter both email and password.");
+                showToast('Please enter your email and password', 'error');
                 return;
             }
 
@@ -72,20 +72,20 @@ localStorage.setItem('currentUserName', (result.user && result.user.username) ||
                         localStorage.setItem('authToken', result.token);
                     }
                     
-                    alert("Login Successful! 🚀");
-                    window.location.href = 'dashboard.html';
+                    showToast('Login successful! Welcome back! 🚀', 'success');
+                    setTimeout(() => window.location.href = 'dashboard.html', 500);
                 } else {
                     if (response.status === 401 && /verify/i.test(result.message || '')) {
-                        alert(result.message || "Please verify your email first.");
+                        showToast(result.message || 'Please verify your email first', 'warning');
                     } else {
-                        alert(result.message || "Invalid credentials.");
+                        showToast(result.message || 'Invalid email or password', 'error');
                     }
                     loginButton.disabled = false;
                     loginButton.textContent = "Login 🚀";
                 }
             } catch (error) {
                 console.error("Login Error:", error);
-                alert("Connection failed. Please try again in a moment.");
+                showToast('Connection failed. Please try again', 'error');
                 loginButton.disabled = false;
                 loginButton.textContent = "Login 🚀";
             }

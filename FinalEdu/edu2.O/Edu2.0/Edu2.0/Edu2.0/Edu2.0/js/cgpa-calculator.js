@@ -186,13 +186,13 @@ function calculateEverything() {
 async function saveSemesterToCloud() {
     const semesterName = (document.getElementById('semesterName').value || '').trim();
     if (!semesterName) {
-        alert('Please provide a semester name.');
+        showToast('Please enter a semester name', 'error');
         return;
     }
 
     const calc = calculateEverything();
     if (calc.courses.length === 0) {
-        alert('Add at least one course before saving.');
+        showToast('Add at least one course before saving', 'error');
         return;
     }
 
@@ -207,20 +207,22 @@ async function saveSemesterToCloud() {
         });
         console.log('Server Response:', result);
         await loadAcademicData();
-        alert('Semester saved to cloud.');
+        showToast('Semester saved successfully!', 'success');
     } catch (error) {
-        alert('Failed to save semester.');
+        showToast('Failed to save semester. Please try again', 'error');
     }
 }
 
 async function deleteSemester(semesterId) {
-    if (!confirm('Delete this semester record?')) return;
+    const confirmed = await showConfirmDialog('Delete this semester record?');
+    if (!confirmed) return;
 
     try {
         await apiRequest(`${API_BASE}/${semesterId}`, { method: 'DELETE' });
         await loadAcademicData();
+        showToast('Semester deleted successfully', 'success');
     } catch (error) {
-        alert('Failed to delete semester.');
+        showToast('Failed to delete semester. Please try again', 'error');
     }
 }
 
@@ -308,7 +310,7 @@ async function calculateNextSemRequirement() {
     const resultDiv = document.getElementById('targetResult');
 
     if (isNaN(targetCGPA) || isNaN(nextCredits) || nextCredits <= 0) {
-        alert("Please enter a valid target CGPA and next semester's credit load.");
+        showToast('Please enter valid target CGPA and credit load', 'error');
         return;
     }
 
