@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CGPA Calculator | EduSync Life</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="calculator-page">
+
+    <aside class="sidebar">
+        <div class="logo">EduSync Life</div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html">🏠 Dashboard</a>
+            <a href="attendance.html" >📊 Attendance</a>
+            <a href="calendar.html">📅 Calendar</a>
+            <a href="routine.html">📝 Daily Routine</a>
+            <a href="expenses.html">💰 Expenses</a>
+            <a href="cgpa.html">🎓 CGPA Strategist</a>
+             <a href="cgpa-calculator.html" class="active">🧮 CGPA Calculator</a> 
+        </nav>
+                <div class="sidebar-footer">
+                    <button class="logout-btn" onclick="handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+    </aside>
+
+    <main class="main-content">
+        <header style="margin-bottom: 25px;">
+            <h1>🧮 Comprehensive CGPA Calculator</h1>
+            <p style="color: var(--text-muted);">Calculate current semester GPA and merge with previous results.</p>
+        </header>
+
+        <div style="display: grid; grid-template-columns: 1fr 320px; gap: 25px;">
+            
+            <div class="left-column">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h2 style="margin: 0; font-size: 1.2rem;">1. Current Semester Courses</h2>
+                        <button class="btn-main" onclick="addCourseRow()" style="width: auto; padding: 5px 15px;">+ Add Course</button>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="font-size: 0.8rem;">Semester Name</label>
+                        <input type="text" id="semesterName" placeholder="e.g. Spring 2026" style="width: 100%;">
+                    </div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="text-align: left; border-bottom: 2px solid var(--border); font-size: 0.8rem; color: var(--text-muted);">
+                                <th style="padding: 10px;">Course Name</th>
+                                <th style="padding: 10px; width: 100px;">Credits</th>
+                                <th style="padding: 10px; width: 140px;">Grade</th>
+                                <th style="padding: 10px; width: 40px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="courseTableBody">
+                            </tbody>
+                    </table>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <h2 style="margin: 0 0 15px 0; font-size: 1.2rem;">2. Previous Academic Record</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <label style="font-size: 0.8rem;">Total Credits Completed Previously</label>
+                            <input type="number" id="prevTotalCredits" placeholder="e.g. 45" style="width: 100%;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem;">Current CGPA (Up to last semester)</label>
+                            <input type="number" id="prevCGPA" step="0.01" placeholder="e.g. 3.65" style="width: 100%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="results-column">
+    <div class="card" style="background: var(--sidebar-bg); color: white; text-align: center; border: none; padding: 25px;">
+        <p style="margin: 0; font-size: 0.8rem; opacity: 0.8;">Semester GPA</p>
+        <h2 id="semGPA" style="font-size: 2.5rem; margin: 5px 0; color: var(--border);">0.00</h2>
+        
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+        
+        <p style="margin: 0; font-size: 0.8rem; opacity: 0.8;">Final Cumulative CGPA</p>
+        <h2 id="finalCGPA" style="font-size: 3.2rem; margin: 5px 0; color: #fff;">0.00</h2>
+        
+        <button class="btn-main" onclick="calculateEverything()" style="background: var(--primary); color: white; border: none; margin-top: 15px; width: 100%; font-weight: bold;">Calculate All</button>
+        <button class="btn-main" id="saveCloudBtn" onclick="saveSemesterToCloud()" style="background: #0f766e; color: white; border: none; margin-top: 10px; width: 100%; font-weight: bold; display: none;">Save to Cloud</button>
+    </div>
+    
+    <div class="card" style="margin-top: 20px; border-top: 5px solid var(--primary);">
+        <h3 style="margin-top: 0; font-size: 1rem;">🎯 Target Path Finder</h3>
+        <label style="font-size: 0.75rem;">Desired Total CGPA</label>
+        <input type="number" id="targetGoal" step="0.01" placeholder="e.g. 3.80" style="width: 100%; margin-bottom: 10px;">
+        
+        <label style="font-size: 0.75rem;">Next Semester Credits</label>
+        <input type="number" id="nextSemCredits" placeholder="e.g. 18" style="width: 100%; margin-bottom: 15px;">
+        
+        <button class="btn-main" onclick="calculateNextSemRequirement()" style="width: 100%;">Find Required GPA</button>
+        
+        <div id="targetResult" style="margin-top: 15px; font-size: 0.85rem; padding: 10px; border-radius: 8px; background: #fdfaf9; display: none;">
+            </div>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+        <h3 style="margin-top: 0; font-size: 1rem;">☁️ Saved Semesters</h3>
+        <div id="savedSemestersList" style="font-size: 0.85rem; color: var(--text-muted);">Loading...</div>
+    </div>
+</div>
+        </div>
+    </main>
+
+    <script src="js/app.js"></script>
+    <script src="js/cgpa-calculator.js"></script>
+</body>
+</html>

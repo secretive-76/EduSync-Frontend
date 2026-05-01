@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Dashboard | EduSync Life</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* CSS cleanup to remove double lining and force uniform theme */
+        :root {
+            --card-bg: #ffffff;
+            --dashboard-primary: var(--primary); /* Uses your main theme color */
+            --text-dark: #1a1a1a;
+            --text-gray: #64748b;
+        }
+
+        .dash-card {
+            border: none !important; /* Fixes the double lining issue */
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            border-radius: 16px;
+            padding: 24px;
+            background: var(--card-bg);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-top: 5px solid var(--dashboard-primary) !important; /* Uniform top bar */
+        }
+
+        .dash-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body onload="displayWelcome(); updateDashboard();">
+
+    <aside class="sidebar">
+        <div class="logo">EduSync Life</div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="active">🏠 Dashboard</a>
+            <a href="attendance.html">📊 Attendance</a>
+            <a href="calendar.html">📅 Calendar</a>
+            <a href="routine.html">📝 Daily Routine</a>
+            <a href="expenses.html">💰 Expenses</a>
+            <a href="cgpa.html">🎓 CGPA Strategist</a>
+            <a href="cgpa-calculator.html">🧮 CGPA Calculator</a>
+        </nav>
+                <div class="sidebar-footer">
+                    <button class="logout-btn" onclick="handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-wrapper">
+            
+            <header style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h1 id="welcomeMessage" style="font-size: 2.4rem; font-weight: 800; letter-spacing: -1.2px; color: var(--text-dark);">Welcome back!</h1>
+                    <p style="color: var(--text-gray); font-size: 1rem; margin-top: 5px;">Your academic ecosystem is fully synchronized.</p>
+                </div>
+                <div style="text-align: right;">
+                    <div id="currentDate" style="font-weight: 700; color: var(--dashboard-primary); font-size: 1.1rem;">Tuesday, April 7</div>
+                    <div style="font-size: 0.75rem; font-weight: 600; color: #10b981; margin-top: 4px;">● Server Active</div>
+                </div>
+            </header>
+
+            <div class="stat-grid" style="display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 25px; margin-bottom: 30px;">
+                
+                <div class="dash-card">
+                    <span class="stat-label">Academic Standing</span>
+                    <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 15px;">
+                        <div>
+                            <h2 id="dashCGPA" style="font-size: 3.2rem; margin: 0; color: var(--text-dark); font-weight: 800;">0.00</h2>
+                            <p id="cgpaSubtitle" style="font-size: 0.85rem; color: var(--text-gray); margin-top: 4px;">Verified CGPA</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <div id="totalCreditsBox" style="font-weight: 800; color: var(--dashboard-primary); font-size: 1.4rem;">0.0</div>
+                            <div style="font-size: 0.6rem; text-transform: uppercase; color: #94a3b8; font-weight: 700;">Earned Credits</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div onclick="window.location.href='expenses.html'" class="dash-card" style="cursor: pointer;">
+                    <span class="stat-label">Financial Liquidity</span>
+                    <div id="dashRemaining" style="margin-top: 15px;">
+                        <h2 style="font-size: 2.4rem; color: var(--dashboard-primary); font-weight: 800;">Tk 0</h2>
+                        <p style="font-size: 0.85rem; color: var(--text-gray); margin-top: 4px;">Available Balance</p>
+                    </div>
+                </div>
+
+                <div onclick="window.location.href='attendance.html'" class="dash-card" style="cursor: pointer;">
+                    <span class="stat-label">Attendance</span>
+                    <div style="margin-top: 15px; display: flex; flex-direction: column; align-items: flex-start;">
+                        <h2 id="dashAttendanceAvg" style="font-size: 2.4rem; color: var(--dashboard-primary); font-weight: 800;">0%</h2>
+                        <p id="dashAttendanceLabel" style="font-size: 0.85rem; color: var(--text-gray); margin-top: 4px;">Global Attendance Average</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 25px;">
+                <div onclick="window.location.href='routine.html'" class="dash-card" style="border-top: none !important; border-left: 5px solid var(--dashboard-primary) !important; cursor: pointer;">
+                    <h3 style="margin: 0 0 20px 0; font-size: 1.1rem; font-weight: 700; color: var(--text-dark);">📅 Daily Tasks</h3>
+                    <div id="dailyRoutineList" style="min-height: 140px;"></div>
+                </div>
+
+                <div onclick="window.location.href='calendar.html'" class="dash-card" style="border-top: none !important; border-left: 5px solid var(--dashboard-primary) !important; cursor: pointer;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--text-dark);">🔔 Upcoming Events</h3>
+                        <a href="calendar.html" style="font-size: 0.75rem; color: var(--dashboard-primary); text-decoration: none; font-weight: 800;">Open Calendar</a>
+                    </div>
+                    <div id="upcomingEventsList" style="min-height: 140px;"></div>
+                </div>
+            </div>
+        </div> 
+    </main>
+
+    <script src="js/app.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        // Authentication & Date Initialization
+        document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-US', { 
+            weekday: 'long', month: 'long', day: 'numeric' 
+        });
+
+        function displayWelcome() {
+            const userName = localStorage.getItem('currentUserName');
+            const welcomeHeading = document.getElementById('welcomeMessage');
+            if (userName) welcomeHeading.innerText = `Welcome Back, ${userName}! 🎓`;
+        }
+
+    </script>
+</body>
+</html>
