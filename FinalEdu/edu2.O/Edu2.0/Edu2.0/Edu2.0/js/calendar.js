@@ -291,7 +291,8 @@ async function saveEvent() {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify({ title, date: eventDate.toISOString(), time: normalizedTime, category, color, repeat, description, reminder })
+            // Send local YYYY-MM-DD date string instead of an ISO string to avoid timezone shifts
+            body: JSON.stringify({ title, date: selectedDate, time: normalizedTime, category, color, repeat, description, reminder })
         });
 
         const result = await response.json();

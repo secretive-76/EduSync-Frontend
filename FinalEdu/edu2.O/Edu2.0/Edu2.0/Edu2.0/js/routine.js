@@ -275,7 +275,9 @@ async function toggleTask(taskId, currentState) {
         await fetchAllTasks();
         showToast('Task status updated', 'success');
     } catch (error) {
-        showToast('Failed to update task status. Please try again', 'error');
+        console.error('Toggle task error:', error);
+        const msg = error && error.message ? error.message : 'Failed to update task status. Please try again';
+        showToast(`Failed to update task status: ${msg}`, 'error');
     }
 }
 
