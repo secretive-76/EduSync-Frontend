@@ -1,4 +1,4 @@
-const ACADEMIC_API_BASE = 'https://edusync-life-1.onrender.com/api/academic';
+const ACADEMIC_API_BASE = 'https://edusync-life-production.up.railway.app/api/academic';
 let attendanceSheets = [];
 
 function getToken() {

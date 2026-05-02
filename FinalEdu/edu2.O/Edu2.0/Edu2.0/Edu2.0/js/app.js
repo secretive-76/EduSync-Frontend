@@ -217,10 +217,10 @@ async function updateDashboard() {
     if (token) {
         try {
             const [financeResponse, academicResponse] = await Promise.all([
-                fetch(`https://edusync-life-1.onrender.com/api/finance/summary?year=${currentYear}&month=${currentMonth}`, {
+                fetch(`https://edusync-life-production.up.railway.app/api/finance/summary?year=${currentYear}&month=${currentMonth}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 }),
-                fetch('https://edusync-life-1.onrender.com/api/academic/summary', {
+                fetch('https://edusync-life-production.up.railway.app/api/academic/summary', {
                     headers: { Authorization: `Bearer ${token}` }
                 })
             ]);
@@ -306,10 +306,10 @@ async function updateDashboard() {
 
     try {
         const [eventsRes, routineRes] = await Promise.all([
-            fetch(`https://edusync-life-1.onrender.com/api/calendar?fromDate=${todayDateStr}&limit=3`, {
+            fetch(`https://edusync-life-production.up.railway.app/api/calendar?fromDate=${todayDateStr}&limit=3`, {
                 headers: { Authorization: `Bearer ${token}` }
             }),
-            fetch(`https://edusync-life-1.onrender.com/api/routine?dayOfWeek=${currentDayOfWeek}`, {
+            fetch(`https://edusync-life-production.up.railway.app/api/routine?dayOfWeek=${currentDayOfWeek}`, {
                 headers: { Authorization: `Bearer ${token}` }
             })
         ]);
@@ -598,8 +598,8 @@ async function dismissAlarmInDatabase(alarmId, sourceType) {
     if (!token || !alarmId) return;
 
     const endpoint = sourceType === 'routine'
-        ? `https://edusync-life-1.onrender.com/api/routine/${alarmId}/dismiss`
-        : `https://edusync-life-1.onrender.com/api/events/${alarmId}/dismiss`;
+        ? `https://edusync-life-production.up.railway.app/api/routine/${alarmId}/dismiss`
+        : `https://edusync-life-production.up.railway.app/api/events/${alarmId}/dismiss`;
 
     try {
         await fetch(endpoint, {
@@ -658,7 +658,7 @@ async function loadEventsForAlarm() {
     }
 
     try {
-        const response = await fetch('https://edusync-life-1.onrender.com/api/calendar', {
+        const response = await fetch('https://edusync-life-production.up.railway.app/api/calendar', {
             headers: { Authorization: `Bearer ${token}` },
             signal: AbortSignal.timeout(5000) // 5 second timeout to prevent hanging
         });
@@ -706,7 +706,7 @@ async function loadRoutineTasksForAlarm() {
 
     try {
         const dayOfWeek = getCurrentDayKey();
-        const response = await fetch(`https://edusync-life-1.onrender.com/api/routine?dayOfWeek=${dayOfWeek}&alarmEnabled=true`, {
+        const response = await fetch(`https://edusync-life-production.up.railway.app/api/routine?dayOfWeek=${dayOfWeek}&alarmEnabled=true`, {
             headers: { Authorization: `Bearer ${token}` },
             signal: AbortSignal.timeout(5000)
         });
@@ -866,7 +866,7 @@ async function isBackendReachable() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
 
-        const response = await fetch('https://edusync-life-1.onrender.com/api/health', {
+        const response = await fetch('https://edusync-life-production.up.railway.app/api/health', {
             method: 'HEAD',
             signal: controller.signal
         });

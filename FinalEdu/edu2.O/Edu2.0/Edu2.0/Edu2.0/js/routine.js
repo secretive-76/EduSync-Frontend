@@ -3,7 +3,7 @@ let allTasks = [];
 let myChart;
 const reminderLog = new Set();
 
-const API_BASE = 'https://edusync-life-1.onrender.com/api/routine';
+const API_BASE = 'https://edusync-life-production.up.railway.app/api/routine';
 const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
 function getAuthToken() {

@@ -24,7 +24,7 @@ async function fetchBackendData() {
     }
 
     try {
-        const response = await fetch(`https://edusync-life-1.onrender.com/api/finance/summary?year=${currentYear}&month=${currentMonth}`, {
+        const response = await fetch(`https://edusync-life-production.up.railway.app/api/finance/summary?year=${currentYear}&month=${currentMonth}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -64,7 +64,7 @@ async function saveAllowance() {
     const amt = parseFloat(allowanceInput) || 0;
 
     try {
-        const response = await fetch('https://edusync-life-1.onrender.com/api/finance/set-budget', {
+        const response = await fetch('https://edusync-life-production.up.railway.app/api/finance/set-budget', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ async function processSpending() {
     if (isNaN(amt) || amt <= 0) return;
 
     try {
-        const response = await fetch('https://edusync-life-1.onrender.com/api/finance/add-expense', {
+        const response = await fetch('https://edusync-life-production.up.railway.app/api/finance/add-expense', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -127,7 +127,7 @@ async function deleteExpense(id) {
     const token = localStorage.getItem('authToken');
 
     try {
-        const response = await fetch(`https://edusync-life-1.onrender.com/api/finance/expense/${id}`, {
+        const response = await fetch(`https://edusync-life-production.up.railway.app/api/finance/expense/${id}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
