@@ -1,7 +1,27 @@
 let routineTasks = [];
 let allTasks = [];
 let myChart;
-const reminderLog = new Set();
+const REMINDER_LOG_STORAGE_KEY = 'edusyncRoutineReminderLog';
+
+function loadReminderLog() {
+    try {
+        const raw = localStorage.getItem(REMINDER_LOG_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return new Set(Array.isArray(parsed) ? parsed : []);
+    } catch (error) {
+        return new Set();
+    }
+}
+
+function saveReminderLog() {
+    try {
+        localStorage.setItem(REMINDER_LOG_STORAGE_KEY, JSON.stringify(Array.from(reminderLog)));
+    } catch (error) {
+        // Ignore storage failures.
+    }
+}
+
+const reminderLog = loadReminderLog();
 
 const API_BASE = 'https://edusync-life-production.up.railway.app/api/routine';
 const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -285,7 +305,7 @@ function checkReminders() {
     routineTasks.forEach((task) => {
         const reminderKey = `${task._id}-${selectedDate}-${currentHHMM}`;
         const isAlarmEnabled = task.alarmEnabled !== undefined ? Boolean(task.alarmEnabled) : Boolean(task.reminder);
-        if (isAlarmEnabled && !task.isCompleted && task.time && currentHHMM >= task.time && !reminderLog.has(reminderKey)) {
+        if (isAlarmEnabled && !task.isCompleted && !task.isDismissed && task.time && currentHHMM >= task.time && !reminderLog.has(reminderKey)) {
             if (Notification.permission === 'granted') {
                 new Notification('EduSync Routine', {
                     body: `Time for: ${task.title}`,
@@ -295,6 +315,7 @@ function checkReminders() {
                 showToast(`⏰ Reminder: ${task.title}`, 'info');
             }
             reminderLog.add(reminderKey);
+            saveReminderLog();
         }
     });
 }

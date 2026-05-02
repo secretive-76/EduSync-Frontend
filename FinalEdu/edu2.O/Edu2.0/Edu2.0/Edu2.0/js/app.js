@@ -402,6 +402,43 @@ let alarmEventsLastFetchAt = 0;
 let alarmRoutineTasksCache = [];
 let alarmRoutineTasksLastFetchAt = 0;
 
+const DISMISSED_EVENT_STORAGE_KEY = 'edusyncDismissedAlarmEventIds';
+const DISMISSED_ROUTINE_STORAGE_KEY = 'edusyncDismissedRoutineTaskIds';
+
+function readStoredIdList(storageKey) {
+    try {
+        const raw = localStorage.getItem(storageKey);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        return [];
+    }
+}
+
+function writeStoredIdList(storageKey, idList) {
+    try {
+        localStorage.setItem(storageKey, JSON.stringify(Array.from(new Set(idList.filter(Boolean)))));
+    } catch (error) {
+        // Ignore storage failures.
+    }
+}
+
+function isLocallyDismissedReminder(sourceType, reminderId) {
+    if (!reminderId) return false;
+
+    const storageKey = sourceType === 'routine' ? DISMISSED_ROUTINE_STORAGE_KEY : DISMISSED_EVENT_STORAGE_KEY;
+    return readStoredIdList(storageKey).includes(String(reminderId));
+}
+
+function rememberDismissedReminder(sourceType, reminderId) {
+    if (!reminderId) return;
+
+    const storageKey = sourceType === 'routine' ? DISMISSED_ROUTINE_STORAGE_KEY : DISMISSED_EVENT_STORAGE_KEY;
+    const rememberedIds = readStoredIdList(storageKey);
+    rememberedIds.push(String(reminderId));
+    writeStoredIdList(storageKey, rememberedIds);
+}
+
 const playSingleBeep = () => {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) return;
@@ -622,6 +659,7 @@ window.btnStopClick = async function() {
     if (alarmToDismiss) {
         // Update local event object immediately so this session won't re-trigger it.
         alarmToDismiss.isDismissed = true;
+        rememberDismissedReminder(currentAlarmSource, alarmToDismiss._id);
         if (currentAlarmSource === 'routine') {
             alarmRoutineTasksCache = alarmRoutineTasksCache.map((task) => {
                 if (task._id === alarmToDismiss._id) {
@@ -667,7 +705,7 @@ async function loadEventsForAlarm() {
             if (json.success && Array.isArray(json.data)) {
                 return json.data.map((event) => ({
                     ...event,
-                    isDismissed: Boolean(event.isDismissed)
+                    isDismissed: Boolean(event.isDismissed) || isLocallyDismissedReminder('event', event._id)
                 }));
             }
         }
@@ -716,7 +754,7 @@ async function loadRoutineTasksForAlarm() {
                 return json.data.map((task) => ({
                     ...task,
                     alarmEnabled: task.alarmEnabled !== undefined ? Boolean(task.alarmEnabled) : Boolean(task.reminder),
-                    isDismissed: Boolean(task.isDismissed)
+                    isDismissed: Boolean(task.isDismissed) || isLocallyDismissedReminder('routine', task._id)
                 }));
             }
         }
