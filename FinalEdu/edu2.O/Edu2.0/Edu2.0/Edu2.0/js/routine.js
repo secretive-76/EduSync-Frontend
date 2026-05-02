@@ -53,9 +53,23 @@ async function apiRequest(url, options = {}) {
         }
     });
 
-    const result = await response.json();
+    // Be resilient to empty responses or non-JSON bodies
+    const text = await response.text().catch(() => '');
+    let result = null;
+    if (text) {
+        try {
+            result = JSON.parse(text);
+        } catch (err) {
+            // Not JSON — keep raw text
+            result = { success: response.ok, message: text };
+        }
+    } else {
+        result = { success: response.ok };
+    }
+
     if (!response.ok || !result.success) {
-        throw new Error(result.message || 'Request failed');
+        const msg = result && result.message ? result.message : 'Request failed';
+        throw new Error(msg);
     }
 
     return result;
