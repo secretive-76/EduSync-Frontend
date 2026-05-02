@@ -346,7 +346,13 @@ function startEditEvent(eventId) {
     if (!event) return;
 
     editingEventId = eventId;
-    selectedDate = toDateKey(new Date(event.date));
+    // Use the raw date string's YYYY-MM-DD portion to avoid timezone conversion shifts
+    try {
+        const raw = typeof event.date === 'string' ? event.date : (new Date(event.date)).toISOString();
+        selectedDate = raw.split('T')[0];
+    } catch (e) {
+        selectedDate = toDateKey(new Date(event.date));
+    }
 
     document.getElementById('modalDateTitle').innerText = `Edit Event - ${selectedDate}`;
     document.getElementById('eventTitle').value = event.title || '';
