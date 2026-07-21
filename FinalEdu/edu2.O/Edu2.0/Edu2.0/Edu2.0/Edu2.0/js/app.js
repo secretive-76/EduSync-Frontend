@@ -224,7 +224,7 @@ async function handleLogin(event) {
         event.preventDefault();
     }
 
-    const loginButton = document.getElementById('loginButton');
+    const loginButton = document.getElementById('loginBtn');
     const emailInput = document.getElementById('loginEmail');
     const passwordInput = document.getElementById('loginPass');
 
@@ -236,6 +236,8 @@ async function handleLogin(event) {
     const password = passwordInput.value || '';
     const requestUrl = getApiUrl('/api/auth/login');
 
+    console.log('Login submitted with email:', emailInput.value);
+
     if (!email || !password) {
         alert('Please enter both email and password.');
         return;
@@ -245,6 +247,7 @@ async function handleLogin(event) {
     loginButton.textContent = 'Checking... ⌛';
 
     try {
+        console.log('Calling login URL:', requestUrl);
         const response = await fetch(requestUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -276,7 +279,7 @@ async function handleLogin(event) {
         alert(result.message || 'Invalid credentials.');
     } catch (error) {
         if (error instanceof TypeError) {
-            console.error('Failed URL:', requestUrl);
+            console.error('Login failed URL:', requestUrl, error);
         }
         console.error('Login Error:', error);
         alert('We could not reach the server. Please try again in a moment.');
@@ -287,6 +290,36 @@ async function handleLogin(event) {
 }
 
 window.handleLogin = handleLogin;
+
+function bindLoginFallback() {
+    const loginForm = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    } else if (loginBtn) {
+        loginBtn.addEventListener('click', handleLogin);
+    }
+
+    const loginEmail = document.getElementById('loginEmail');
+    const loginPass = document.getElementById('loginPass');
+    [loginEmail, loginPass].forEach((input) => {
+        if (!input || input.dataset.loginKeyBound === 'true') return;
+        input.dataset.loginKeyBound = 'true';
+        input.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                handleLogin(event);
+            }
+        });
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindLoginFallback);
+} else {
+    bindLoginFallback();
+}
+
 function showRegisterStatus(message, type = 'info') {
     const statusBox = document.getElementById('registerStatus');
     if (!statusBox) return;
@@ -343,38 +376,6 @@ async function handleRegister() {
         });
 
         const data = await response.json();
-    function bindLoginFallback() {
-        const loginButton = document.getElementById('loginButton');
-        const loginForm = document.getElementById('loginForm');
-
-        if (loginButton && !loginButton.dataset.loginBound) {
-            loginButton.dataset.loginBound = 'true';
-            loginButton.addEventListener('click', handleLogin);
-        }
-
-        if (loginForm && !loginForm.dataset.loginBound) {
-            loginForm.dataset.loginBound = 'true';
-            loginForm.addEventListener('submit', handleLogin);
-        }
-
-        const loginEmail = document.getElementById('loginEmail');
-        const loginPass = document.getElementById('loginPass');
-        [loginEmail, loginPass].forEach((input) => {
-            if (!input || input.dataset.loginKeyBound === 'true') return;
-            input.dataset.loginKeyBound = 'true';
-            input.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter') {
-                    handleLogin(event);
-                }
-            });
-        });
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', bindLoginFallback);
-    } else {
-        bindLoginFallback();
-    }
         registerButton.disabled = false;
 
         const signupSuccess = response.status === 201 || (response.ok && data.success);
