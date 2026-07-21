@@ -219,6 +219,74 @@ const ROUTINE_API_BASE = `${API_BASE_URL}/api/routine`;
 const EVENTS_API_BASE = `${API_BASE_URL}/api/events`;
 let pendingVerificationEmail = null;
 
+async function handleLogin(event) {
+    if (event && typeof event.preventDefault === 'function') {
+        event.preventDefault();
+    }
+
+    const loginButton = document.getElementById('loginButton');
+    const emailInput = document.getElementById('loginEmail');
+    const passwordInput = document.getElementById('loginPass');
+
+    if (!loginButton || !emailInput || !passwordInput) {
+        return;
+    }
+
+    const email = (emailInput.value || '').trim();
+    const password = passwordInput.value || '';
+    const requestUrl = getApiUrl('/api/auth/login');
+
+    if (!email || !password) {
+        alert('Please enter both email and password.');
+        return;
+    }
+
+    loginButton.disabled = true;
+    loginButton.textContent = 'Checking... ⌛';
+
+    try {
+        const response = await fetch(requestUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem('currentUserEmail', email);
+            localStorage.setItem('currentUserName', (result.user && result.user.username) || 'Student');
+
+            if (result.token) {
+                localStorage.setItem('authToken', result.token);
+            }
+
+            alert('Login Successful! 🚀');
+            window.location.href = 'dashboard.html';
+            return;
+        }
+
+        if (response.status === 401 && String(result.message || '').toLowerCase().includes('verify')) {
+            localStorage.setItem('userEmail', email);
+            alert('Please verify your account first. Redirecting to OTP page...');
+            window.location.href = 'verify-otp.html';
+            return;
+        }
+
+        alert(result.message || 'Invalid credentials.');
+    } catch (error) {
+        if (error instanceof TypeError) {
+            console.error('Failed URL:', requestUrl);
+        }
+        console.error('Login Error:', error);
+        alert('We could not reach the server. Please try again in a moment.');
+    } finally {
+        loginButton.disabled = false;
+        loginButton.textContent = 'Login 🚀';
+    }
+}
+
+window.handleLogin = handleLogin;
 function showRegisterStatus(message, type = 'info') {
     const statusBox = document.getElementById('registerStatus');
     if (!statusBox) return;
@@ -275,6 +343,38 @@ async function handleRegister() {
         });
 
         const data = await response.json();
+    function bindLoginFallback() {
+        const loginButton = document.getElementById('loginButton');
+        const loginForm = document.getElementById('loginForm');
+
+        if (loginButton && !loginButton.dataset.loginBound) {
+            loginButton.dataset.loginBound = 'true';
+            loginButton.addEventListener('click', handleLogin);
+        }
+
+        if (loginForm && !loginForm.dataset.loginBound) {
+            loginForm.dataset.loginBound = 'true';
+            loginForm.addEventListener('submit', handleLogin);
+        }
+
+        const loginEmail = document.getElementById('loginEmail');
+        const loginPass = document.getElementById('loginPass');
+        [loginEmail, loginPass].forEach((input) => {
+            if (!input || input.dataset.loginKeyBound === 'true') return;
+            input.dataset.loginKeyBound = 'true';
+            input.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    handleLogin(event);
+                }
+            });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindLoginFallback);
+    } else {
+        bindLoginFallback();
+    }
         registerButton.disabled = false;
 
         const signupSuccess = response.status === 201 || (response.ok && data.success);
