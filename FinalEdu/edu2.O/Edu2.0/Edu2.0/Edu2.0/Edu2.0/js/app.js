@@ -201,7 +201,8 @@ function displayWelcome() {
     }
 }
 
-const API_BASE_URL = 'https://edusync-life-1.onrender.com';
+window.API_BASE_URL = window.API_BASE_URL || 'https://edusync-life-1.onrender.com';
+const API_BASE_URL = window.API_BASE_URL;
 function getApiUrl(endpoint) {
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     return `${API_BASE_URL}${cleanEndpoint}`;
