@@ -4,7 +4,12 @@ let eventsByDate = {};
 let allEvents = [];
 let editingEventId = null;
 
-const API_BASE = 'https://edusync-life-1.onrender.com/api/calendar';
+const API_BASE_URL = window.API_BASE_URL || 'https://edusync-life-1.onrender.com';
+const getApiUrl = window.getApiUrl || function (endpoint) {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    return `${API_BASE_URL}${cleanEndpoint}`;
+};
+const API_BASE = getApiUrl('/api/calendar');
 
 function getAuthToken() {
     return localStorage.getItem('authToken');
@@ -150,7 +155,7 @@ async function fetchMonthEvents() {
     const month = currentDate.getMonth() + 1;
 
     try {
-        const response = await fetch(`${API_BASE}?year=${year}&month=${month}`, {
+        const response = await fetch(getApiUrl(`/api/calendar?year=${year}&month=${month}`), {
             headers: { Authorization: `Bearer ${token}` }
         });
         const result = await response.json();
@@ -303,7 +308,7 @@ async function saveEvent() {
     const isUpdate = Boolean(editingEventId);
 
     try {
-        const response = await fetch(isUpdate ? `${API_BASE}/${editingEventId}` : API_BASE, {
+        const response = await fetch(isUpdate ? getApiUrl(`/api/calendar/${editingEventId}`) : API_BASE, {
             method: isUpdate ? 'PUT' : 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -334,7 +339,7 @@ async function deleteEvent(eventId) {
     if (!confirm('Delete this event?')) return;
 
     try {
-        const response = await fetch(`${API_BASE}/${eventId}`, {
+        const response = await fetch(getApiUrl(`/api/calendar/${eventId}`), {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` }
         });

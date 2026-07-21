@@ -201,6 +201,193 @@ function displayWelcome() {
     }
 }
 
+const API_BASE_URL = 'https://edusync-life-1.onrender.com';
+function getApiUrl(endpoint) {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    return `${API_BASE_URL}${cleanEndpoint}`;
+}
+
+window.API_BASE_URL = API_BASE_URL;
+window.getApiUrl = getApiUrl;
+
+const AUTH_API_BASE = `${API_BASE_URL}/api/auth`;
+const FINANCE_API_BASE = `${API_BASE_URL}/api/finance`;
+const ACADEMIC_API_BASE = `${API_BASE_URL}/api/academic`;
+const CALENDAR_API_BASE = `${API_BASE_URL}/api/calendar`;
+const ROUTINE_API_BASE = `${API_BASE_URL}/api/routine`;
+const EVENTS_API_BASE = `${API_BASE_URL}/api/events`;
+let pendingVerificationEmail = null;
+
+function showRegisterStatus(message, type = 'info') {
+    const statusBox = document.getElementById('registerStatus');
+    if (!statusBox) return;
+
+    statusBox.style.display = 'block';
+    statusBox.style.background = type === 'success' ? '#dcfce7' : type === 'warning' ? '#fef3c7' : '#fee2e2';
+    statusBox.style.color = type === 'success' ? '#166534' : type === 'warning' ? '#92400e' : '#991b1b';
+    statusBox.textContent = message;
+}
+
+function showOtpSection(show) {
+    const registerFormSection = document.getElementById('registerFormSection');
+    const otpSection = document.getElementById('otpVerificationSection');
+
+    if (registerFormSection) {
+        registerFormSection.style.display = show ? 'none' : 'block';
+    }
+    if (otpSection) {
+        otpSection.style.display = show ? 'block' : 'none';
+    }
+}
+
+async function handleRegister() {
+    const registerButton = document.getElementById('registerButton');
+    const name = (document.getElementById('regName')?.value || '').trim();
+    const email = (document.getElementById('regEmail')?.value || '').trim();
+    const pass = document.getElementById('regPass')?.value || '';
+    const confirm = document.getElementById('regPassConfirm')?.value || '';
+
+    if (!registerButton) return;
+
+    registerButton.disabled = true;
+
+    if (!name || !email || !pass) {
+        registerButton.disabled = false;
+        return alert('Please fill in all fields so we can create your account smoothly. ✍️');
+    }
+
+    if (pass !== confirm) {
+        registerButton.disabled = false;
+        return alert('Your passwords do not match yet. Please double-check and try again.');
+    }
+
+    try {
+        const signupUrl = getApiUrl('/api/auth/signup');
+        const response = await fetch(signupUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: name,
+                email,
+                password: pass
+            })
+        });
+
+        const data = await response.json();
+        registerButton.disabled = false;
+
+        const signupSuccess = response.status === 201 || (response.ok && data.success);
+
+        if (!signupSuccess) {
+            if (response.status === 409 && /unverified account/i.test(data.message || '')) {
+                pendingVerificationEmail = email;
+                showOtpSection(true);
+                showRegisterStatus('This email is already registered but not verified. Enter OTP below or resend a new code.', 'warning');
+                return;
+            }
+            return alert(data.message || data.error || "We couldn't complete sign-up right now. Please try again.");
+        }
+
+        pendingVerificationEmail = email;
+        showOtpSection(true);
+        showRegisterStatus('Great start! Enter your 6-digit OTP code to finish verification.', 'success');
+    } catch (err) {
+        registerButton.disabled = false;
+        if (err instanceof TypeError) {
+            console.error('Failed URL:', getApiUrl('/api/auth/signup'));
+        }
+        console.error('Connection error:', err);
+        return alert('We could not connect to the server. Please try again shortly.');
+    }
+}
+
+async function handleOTPVerification() {
+    const verifyOtpButton = document.getElementById('verifyOtpButton');
+    const otpInput = document.getElementById('otpCode');
+    const emailFromInput = (document.getElementById('regEmail')?.value || '').trim();
+    const email = pendingVerificationEmail || emailFromInput;
+    const otpCode = (otpInput?.value || '').trim();
+
+    if (!verifyOtpButton) return;
+
+    if (!email) {
+        return alert('Please provide your registration email before verifying OTP.');
+    }
+
+    if (!/^\d{6}$/.test(otpCode)) {
+        return alert('Please enter a valid 6-digit OTP code.');
+    }
+
+    verifyOtpButton.disabled = true;
+
+    try {
+        const verifyUrl = getApiUrl('/api/auth/verify-otp');
+        const response = await fetch(verifyUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, otpCode })
+        });
+
+        const data = await response.json();
+        verifyOtpButton.disabled = false;
+
+        if (!response.ok || !data.success) {
+            return alert(data.message || 'Invalid OTP or OTP expired. Please try again.');
+        }
+
+        showRegisterStatus('Email verified successfully! Redirecting to login...', 'success');
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 700);
+    } catch (error) {
+        verifyOtpButton.disabled = false;
+        if (error instanceof TypeError) {
+            console.error('Failed URL:', getApiUrl('/api/auth/verify-otp'));
+        }
+        console.error('OTP verification error:', error);
+        return alert('Unable to verify OTP right now. Please try again.');
+    }
+}
+
+async function handleResendVerification() {
+    const emailFromInput = (document.getElementById('regEmail')?.value || '').trim();
+    const email = pendingVerificationEmail || emailFromInput;
+
+    if (!email) {
+        return alert('Please enter the email address you used during registration. 📧');
+    }
+
+    try {
+        const resendUrl = getApiUrl('/api/auth/resend-verification');
+        const response = await fetch(resendUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            showRegisterStatus(data.message || 'Unable to resend OTP right now.', 'error');
+            return;
+        }
+
+        pendingVerificationEmail = email;
+        showOtpSection(true);
+        showRegisterStatus(data.message || 'A fresh OTP has been sent to your email.', 'success');
+    } catch (error) {
+        if (error instanceof TypeError) {
+            console.error('Failed URL:', getApiUrl('/api/auth/resend-verification'));
+        }
+        console.error('Connection error:', error);
+        return alert('Server connection failed. Please try again shortly.');
+    }
+}
+
+window.handleRegister = handleRegister;
+window.handleOTPVerification = handleOTPVerification;
+window.handleResendVerification = handleResendVerification;
+
 function handleLogout() {
     // Remove only authentication/session data so theme preference remains intact.
     const sessionKeys = [
@@ -245,10 +432,10 @@ async function updateDashboard() {
     if (token) {
         try {
             const [financeResponse, academicResponse] = await Promise.all([
-                fetch(`https://edusync-life-1.onrender.com/api/finance/summary?year=${currentYear}&month=${currentMonth}`, {
+                fetch(getApiUrl(`/api/finance/summary?year=${currentYear}&month=${currentMonth}`), {
                     headers: { Authorization: `Bearer ${token}` }
                 }),
-                fetch('https://edusync-life-1.onrender.com/api/academic/summary', {
+                fetch(getApiUrl('/api/academic/summary'), {
                     headers: { Authorization: `Bearer ${token}` }
                 })
             ]);
@@ -334,10 +521,10 @@ async function updateDashboard() {
 
     try {
         const [eventsRes, routineRes] = await Promise.all([
-            fetch(`https://edusync-life-1.onrender.com/api/calendar?fromDate=${todayDateStr}&limit=3`, {
+            fetch(getApiUrl(`/api/calendar?fromDate=${todayDateStr}&limit=3`), {
                 headers: { Authorization: `Bearer ${token}` }
             }),
-            fetch(`https://edusync-life-1.onrender.com/api/routine?dayOfWeek=${currentDayOfWeek}`, {
+            fetch(getApiUrl(`/api/routine?dayOfWeek=${currentDayOfWeek}`), {
                 headers: { Authorization: `Bearer ${token}` }
             })
         ]);
@@ -626,8 +813,8 @@ async function dismissAlarmInDatabase(alarmId, sourceType) {
     if (!token || !alarmId) return;
 
     const endpoint = sourceType === 'routine'
-        ? `https://edusync-life-1.onrender.com/api/routine/${alarmId}/dismiss`
-        : `https://edusync-life-1.onrender.com/api/events/${alarmId}/dismiss`;
+        ? getApiUrl(`/api/routine/${alarmId}/dismiss`)
+        : getApiUrl(`/api/events/${alarmId}/dismiss`);
 
     try {
         await fetch(endpoint, {
@@ -686,7 +873,7 @@ async function loadEventsForAlarm() {
     }
 
     try {
-        const response = await fetch('https://edusync-life-1.onrender.com/api/calendar', {
+        const response = await fetch(getApiUrl('/api/calendar'), {
             headers: { Authorization: `Bearer ${token}` },
             signal: AbortSignal.timeout(5000) // 5 second timeout to prevent hanging
         });
@@ -734,7 +921,7 @@ async function loadRoutineTasksForAlarm() {
 
     try {
         const dayOfWeek = getCurrentDayKey();
-        const response = await fetch(`https://edusync-life-1.onrender.com/api/routine?dayOfWeek=${dayOfWeek}&alarmEnabled=true`, {
+        const response = await fetch(getApiUrl(`/api/routine?dayOfWeek=${dayOfWeek}&alarmEnabled=true`), {
             headers: { Authorization: `Bearer ${token}` },
             signal: AbortSignal.timeout(5000)
         });
@@ -894,7 +1081,7 @@ async function isBackendReachable() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
 
-        const response = await fetch('https://edusync-life-1.onrender.com/api/health', {
+        const response = await fetch(getApiUrl('/health'), {
             method: 'HEAD',
             signal: controller.signal
         });

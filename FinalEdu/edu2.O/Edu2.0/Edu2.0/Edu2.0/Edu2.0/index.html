@@ -60,13 +60,17 @@
 
     <script src="js/app.js"></script>
     <script>
-        // Use the synchronized API base URL
-        const apiBaseUrl = 'https://edusync-life-1.onrender.com/api/auth';
+        const API_BASE_URL = window.API_BASE_URL || 'https://edusync-life-1.onrender.com';
+        const getApiUrl = window.getApiUrl || function (endpoint) {
+            const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+            return `${API_BASE_URL}${cleanEndpoint}`;
+        };
 
         async function handleLogin() {
             const loginButton = document.getElementById('loginButton');
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPass').value;
+            const requestUrl = getApiUrl('/api/auth/login');
 
             if (!email || !password) {
                 alert('Please enter both email and password so we can sign you in. ✍️');
@@ -75,11 +79,10 @@
 
             // Disable button to prevent double-clicks
             loginButton.disabled = true;
-            loginButton.textContent = "Checking... ⏳";
+            loginButton.textContent = "Checking... ⌛";
 
             try {
-                // Updated URL to include /api/auth/login
-                const response = await fetch(`${apiBaseUrl}/login`, {
+                const response = await fetch(requestUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -90,11 +93,8 @@
                 const result = await response.json();
 
                 if (response.ok) {
-                    // Save user session and token in the browser
-                    // This ensures that even if the backend returns a slightly different object, 
-// your frontend doesn't crash.
-localStorage.setItem('currentUserEmail', email); 
-localStorage.setItem('currentUserName', (result.user && result.user.username) || 'Student');
+                    localStorage.setItem('currentUserEmail', email);
+                    localStorage.setItem('currentUserName', (result.user && result.user.username) || 'Student');
                     
                     // Save the auth token for protected routes
                     if (result.token) {
@@ -114,8 +114,11 @@ localStorage.setItem('currentUserName', (result.user && result.user.username) ||
                     loginButton.textContent = "Login 🚀";
                 }
             } catch (error) {
+                if (error instanceof TypeError) {
+                    console.error('Failed URL:', requestUrl);
+                }
                 console.error("Login Error:", error);
-                alert('We could not reach the server. Please make sure the backend is running on port 5000.');
+                alert('We could not reach the server. Please try again in a moment.');
                 loginButton.disabled = false;
                 loginButton.textContent = "Login 🚀";
             }

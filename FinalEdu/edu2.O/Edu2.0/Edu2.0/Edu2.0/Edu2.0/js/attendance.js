@@ -1,4 +1,10 @@
-const ACADEMIC_API_BASE = 'https://edusync-life-1.onrender.com/api/academic';
+const API_BASE_URL = window.API_BASE_URL || 'https://edusync-life-1.onrender.com';
+const getApiUrl = window.getApiUrl || function (endpoint) {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    return `${API_BASE_URL}${cleanEndpoint}`;
+};
+const ACADEMIC_API_BASE = getApiUrl('/api/academic');
+const ATTENDANCE_CACHE_KEY = 'edusync-attendance-cache';
 let attendanceSheets = [];
 
 function getToken() {
@@ -130,6 +136,96 @@ function setDirty(courseId, dirty) {
     }
 }
 
+function buildAttendancePayload() {
+    return attendanceSheets.map((sheet) => ({
+        courseId: sheet.courseId,
+        courseName: sheet.courseName,
+        credits: sheet.credits,
+        classesPresent: getPresentCount(sheet),
+        totalClasses: getTotalClasses(sheet),
+        classAbsentStates: sheet.classAbsentStates,
+        classStatuses: sheet.classAbsentStates.map((absent) => (absent ? 'A' : 'P')),
+        lastUpdated: sheet.lastUpdated
+    }));
+}
+
+function saveAttendanceCache() {
+    try {
+        localStorage.setItem(ATTENDANCE_CACHE_KEY, JSON.stringify(buildAttendancePayload()));
+    } catch (error) {
+        console.warn('Failed to save attendance cache:', error);
+    }
+}
+
+function loadAttendanceCache() {
+    try {
+        const raw = localStorage.getItem(ATTENDANCE_CACHE_KEY);
+        if (!raw) return [];
+
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed.map((item) => normalizeSheet(item)) : [];
+    } catch (error) {
+        console.warn('Failed to load attendance cache:', error);
+        return [];
+    }
+}
+
+function mergeAttendanceSources(serverSheets = [], cachedSheets = []) {
+    const merged = new Map();
+
+    cachedSheets.forEach((sheet) => {
+        merged.set(sheet.courseId, sheet);
+    });
+
+    serverSheets.forEach((sheet) => {
+        merged.set(sheet.courseId, sheet);
+    });
+
+    return Array.from(merged.values());
+}
+
+function clearAllDirtyStates() {
+    attendanceSheets.forEach((sheet) => {
+        sheet.dirty = false;
+    });
+}
+
+async function persistAttendanceSheets(silent = false) {
+    const token = getToken();
+    if (!token) {
+        saveAttendanceCache();
+        if (!silent) alert('Please sign in first so we can sync your attendance securely. 🔐');
+        return false;
+    }
+
+    try {
+        const response = await fetch(getApiUrl('/api/academic/strategist-settings'), {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify({
+                attendanceData: buildAttendancePayload()
+            })
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error('Save failed');
+        }
+
+        saveAttendanceCache();
+        clearAllDirtyStates();
+        renderSheets();
+        return true;
+    } catch (error) {
+        console.error('Attendance save error:', error);
+        saveAttendanceCache();
+        if (!silent) {
+            alert("Oops! We couldn't sync your attendance just yet. Please try again. 🛠️");
+        }
+        return false;
+    }
+}
+
 function updateStatsView(courseId) {
     const sheet = attendanceSheets.find((item) => item.courseId === courseId);
     if (!sheet) return;
@@ -190,6 +286,31 @@ function buildSheetRows(sheet) {
     return html;
 }
 
+async function deleteAttendanceSheet(courseId) {
+    const sheetIndex = attendanceSheets.findIndex((item) => item.courseId === courseId);
+    if (sheetIndex < 0) return;
+
+    const confirmed = window.confirm('Delete this course and all of its attendance data?');
+    if (!confirmed) return;
+
+    const token = getToken();
+    if (!token) {
+        alert('Please sign in first so we can sync your attendance securely. 🔐');
+        return;
+    }
+
+    const removedSheet = attendanceSheets.splice(sheetIndex, 1)[0];
+    saveAttendanceCache();
+    const saved = await persistAttendanceSheets(true);
+
+    if (!saved) {
+        attendanceSheets.splice(sheetIndex, 0, removedSheet);
+        saveAttendanceCache();
+        renderSheets();
+        alert("Oops! We couldn't delete that course on the server. Please try again. 🛠️");
+    }
+}
+
 function renderSheets() {
     const container = document.getElementById('attendanceCards');
     if (!container) return;
@@ -237,9 +358,12 @@ function renderSheets() {
                     Status: <span id="status-${sheet.courseId}" style="color: ${statusInfo.statusColor}; font-weight: bold;">${statusInfo.status}${statusInfo.backlogMsg}</span>
                 </div>
 
-                <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap: 10px; flex-wrap: wrap;">
                     <span id="syncAttendance-${sheet.courseId}" style="font-size:0.8rem; color:#64748b;">${sheet.dirty ? 'Unsaved changes' : 'All saved'}</span>
-                    <button id="saveAttendance-${sheet.courseId}" onclick="saveAttendanceSheet('${sheet.courseId}', false)" ${sheet.dirty ? '' : 'disabled'} style="border:none; background:#2E7D32; color:#fff; border-radius:8px; padding:8px 14px; font-weight:700; opacity:${sheet.dirty ? '1' : '0.45'}; cursor:${sheet.dirty ? 'pointer' : 'not-allowed'}; transition:all 0.3s ease;">Save Changes</button>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button onclick="deleteAttendanceSheet('${sheet.courseId}')" style="border:1px solid #dc2626; background:#fff; color:#dc2626; border-radius:8px; padding:8px 14px; font-weight:700; cursor:pointer; transition:all 0.3s ease;">Delete Course</button>
+                        <button id="saveAttendance-${sheet.courseId}" onclick="saveAttendanceSheet('${sheet.courseId}', false)" ${sheet.dirty ? '' : 'disabled'} style="border:none; background:#2E7D32; color:#fff; border-radius:8px; padding:8px 14px; font-weight:700; opacity:${sheet.dirty ? '1' : '0.45'}; cursor:${sheet.dirty ? 'pointer' : 'not-allowed'}; transition:all 0.3s ease;">Save Changes</button>
+                    </div>
                 </div>
             </div>
         ` : '';
@@ -282,21 +406,17 @@ function generateAttendanceSheet() {
 
     sheet.dirty = true;
     attendanceSheets.push(sheet);
+    saveAttendanceCache();
 
     nameEl.value = '';
     creditEl.value = '';
 
     renderSheets();
     setDirty(sheet.courseId, true);
+    persistAttendanceSheets(true);
 }
 
 async function saveAttendanceSheet(courseId, silent) {
-    const token = getToken();
-    if (!token) {
-        if (!silent) alert('Please sign in first so we can sync your attendance securely. 🔐');
-        return;
-    }
-
     const sheet = attendanceSheets.find((item) => item.courseId === courseId);
     if (!sheet) return;
 
@@ -308,86 +428,63 @@ async function saveAttendanceSheet(courseId, silent) {
         saveBtn.disabled = true;
     }
 
-    try {
-        const response = await fetch(`${ACADEMIC_API_BASE}/strategist-settings`, {
-            method: 'PUT',
-            headers: authHeaders(),
-            body: JSON.stringify({
-                attendanceDataItem: {
-                    courseId: sheet.courseId,
-                    courseName: sheet.courseName,
-                    credits: sheet.credits,
-                    classesPresent: getPresentCount(sheet),
-                    totalClasses: getTotalClasses(sheet),
-                    classAbsentStates: sheet.classAbsentStates,
-                    classStatuses: sheet.classAbsentStates.map((absent) => (absent ? 'A' : 'P')),
-                    lastUpdated: sheet.lastUpdated
-                }
-            })
-        });
+    const saved = await persistAttendanceSheets(silent);
 
-        const result = await response.json();
-        if (!response.ok || !result.success) {
-            throw new Error('Save failed');
-        }
-
-        setDirty(courseId, false);
-        if (syncEl) {
-            syncEl.innerText = 'All saved';
-            syncEl.style.color = '#15803d';
-        }
+    if (saved) {
         if (saveBtn) {
             saveBtn.innerText = '✅ Saved';
             saveBtn.disabled = true;
             saveBtn.style.opacity = '0.45';
             saveBtn.style.cursor = 'not-allowed';
             setTimeout(() => {
-                if (saveBtn && !sheet.dirty) {
+                if (saveBtn) {
                     saveBtn.innerText = 'Save Changes';
                 }
             }, 2000);
         }
-    } catch (error) {
-        console.error('Attendance save error:', error);
-        if (syncEl) {
-            syncEl.innerText = 'Save failed';
-            syncEl.style.color = '#dc2626';
-        }
-        if (saveBtn) {
-            saveBtn.innerText = 'Save Changes';
-            saveBtn.disabled = false;
-            saveBtn.style.opacity = '1';
-        }
-        if (!silent) {
-            alert("Oops! We couldn't sync this sheet just yet. Please try again. 🛠️");
-        }
+        return;
+    }
+
+    if (syncEl) {
+        syncEl.innerText = 'Save failed';
+        syncEl.style.color = '#dc2626';
+    }
+    if (saveBtn) {
+        saveBtn.innerText = 'Save Changes';
+        saveBtn.disabled = false;
+        saveBtn.style.opacity = '1';
+        saveBtn.style.cursor = 'pointer';
     }
 }
 
 async function loadAttendanceSheets() {
     const token = getToken();
     if (!token) {
-        attendanceSheets = [];
+        attendanceSheets = loadAttendanceCache();
         renderSheets();
         return;
     }
 
     try {
-        const response = await fetch(`${ACADEMIC_API_BASE}/strategist-settings`, {
+        const response = await fetch(getApiUrl('/api/academic/strategist-settings'), {
             headers: { Authorization: `Bearer ${token}` }
         });
         const result = await response.json();
+        const cachedSheets = loadAttendanceCache();
 
         if (response.ok && result.success) {
             const settings = (result.data || [])[0] || {};
             const attendanceData = Array.isArray(settings.attendanceData) ? settings.attendanceData : [];
-            attendanceSheets = attendanceData.map((item) => normalizeSheet(item));
+            attendanceSheets = mergeAttendanceSources(
+                attendanceData.map((item) => normalizeSheet(item)),
+                cachedSheets
+            );
         } else {
-            attendanceSheets = [];
+            attendanceSheets = cachedSheets;
         }
     } catch (error) {
         console.error('Failed to load attendance sheets:', error);
-        attendanceSheets = [];
+        attendanceSheets = loadAttendanceCache();
     }
 
     renderSheets();

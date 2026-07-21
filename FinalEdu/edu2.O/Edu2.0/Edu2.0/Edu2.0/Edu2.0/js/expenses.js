@@ -1,3 +1,9 @@
+const API_BASE_URL = window.API_BASE_URL || 'https://edusync-life-1.onrender.com';
+const getApiUrl = window.getApiUrl || function (endpoint) {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    return `${API_BASE_URL}${cleanEndpoint}`;
+};
+
 let allowance = 0;
 let expenses = [];
 let myChart;
@@ -42,7 +48,7 @@ async function fetchBackendData() {
     }
 
     try {
-        const response = await fetch(`https://edusync-life-1.onrender.com/api/finance/summary?year=${currentYear}&month=${currentMonth}`, {
+        const response = await fetch(getApiUrl(`/api/finance/summary?year=${currentYear}&month=${currentMonth}`), {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
@@ -82,7 +88,7 @@ async function saveAllowance() {
     const amt = parseFloat(allowanceInput) || 0;
 
     try {
-        const response = await fetch('https://edusync-life-1.onrender.com/api/finance/set-budget', {
+        const response = await fetch(getApiUrl('/api/finance/set-budget'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -113,7 +119,7 @@ async function processSpending() {
     if (isNaN(amt) || amt <= 0) return;
 
     try {
-        const response = await fetch('https://edusync-life-1.onrender.com/api/finance/add-expense', {
+        const response = await fetch(getApiUrl('/api/finance/add-expense'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -144,7 +150,7 @@ async function deleteExpense(id) {
     const token = localStorage.getItem('authToken');
 
     try {
-        const response = await fetch(`https://edusync-life-1.onrender.com/api/finance/expense/${id}`, {
+        const response = await fetch(getApiUrl(`/api/finance/expense/${id}`), {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });

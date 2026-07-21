@@ -20,7 +20,12 @@ function getRoutineChartColors() {
     };
 }
 
-const API_BASE = 'https://edusync-life-1.onrender.com/api/routine';
+const API_BASE_URL = window.API_BASE_URL || 'https://edusync-life-1.onrender.com';
+const getApiUrl = window.getApiUrl || function (endpoint) {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    return `${API_BASE_URL}${cleanEndpoint}`;
+};
+const API_BASE = getApiUrl('/api/routine');
 const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
 function getAuthToken() {
@@ -386,10 +391,19 @@ async function updateChart(viewType) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 30,
+                    right: 10,
+                    bottom: 20,
+                    left: 10
+                }
+            },
             backgroundColor: chartColors.background,
             scales: {
                 x: {
                     ticks: {
+                        padding: 8,
                         color: chartColors.text,
                         font: {
                             weight: 600
@@ -415,12 +429,7 @@ async function updateChart(viewType) {
             },
             plugins: {
                 legend: {
-                    labels: {
-                        color: chartColors.text,
-                        font: {
-                            weight: 600
-                        }
-                    }
+                    display: false
                 },
                 tooltip: {
                     backgroundColor: isDarkMode() ? '#1f2937' : '#ffffff',

@@ -8,125 +8,28 @@
 <body class="login-body">
     <div class="login-card">
         <h2>Join EduSync! 📝</h2>
-        <input type="text" id="regName" placeholder="Username">
-        <input type="email" id="regEmail" placeholder="Email Address">
-        <input type="password" id="regPass" placeholder="Set Password">
-        <input type="password" id="regPassConfirm" placeholder="Retype Password">
-        
-        <button class="btn-main" id="registerButton" onclick="handleRegister()">Create Account ✅</button>
-        <button class="btn-main" id="resendButton" onclick="handleResendVerification()" style="display:none; margin-top: 10px; background: #f59e0b;">Resend Verification Email</button>
+        <div id="registerFormSection">
+            <input type="text" id="regName" placeholder="Username">
+            <input type="email" id="regEmail" placeholder="Email Address">
+            <input type="password" id="regPass" placeholder="Set Password">
+            <input type="password" id="regPassConfirm" placeholder="Retype Password">
+
+            <button class="btn-main" id="registerButton" onclick="handleRegister()">Create Account ✅</button>
+        </div>
+
+        <div id="otpVerificationSection" class="otp-panel" style="display:none;">
+            <h3 class="otp-title">Verify Your Email</h3>
+            <p class="otp-subtitle">Enter the 6-digit code sent to your inbox to activate your account.</p>
+            <input type="text" id="otpCode" class="otp-input" placeholder="123456" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code">
+            <button class="btn-main" id="verifyOtpButton" onclick="handleOTPVerification()">Verify OTP 🔐</button>
+            <button class="btn-main otp-resend-btn" id="resendButton" onclick="handleResendVerification()">Resend OTP 📧</button>
+        </div>
+
         <div id="registerStatus" style="display:none; margin-top: 15px; padding: 12px; border-radius: 8px; font-weight: 600;"></div>
         
         <p style="margin-top: 15px;">Already have an account? <a href="index.html">Login</a></p>
     </div>
 
     <script src="js/app.js"></script>
-    <script>
-        const apiBaseUrl = 'https://edusync-life-1.onrender.com/api/auth';
-
-        function showStatus(message, type) {
-            const statusBox = document.getElementById('registerStatus');
-            statusBox.style.display = 'block';
-            statusBox.style.background = type === 'success' ? '#dcfce7' : type === 'warning' ? '#fef3c7' : '#fee2e2';
-            statusBox.style.color = type === 'success' ? '#166534' : type === 'warning' ? '#92400e' : '#991b1b';
-            statusBox.textContent = message;
-        }
-
-        function setResendVisibility(visible) {
-            document.getElementById('resendButton').style.display = visible ? 'block' : 'none';
-        }
-
-        async function handleRegister() {
-            const registerButton = document.getElementById('registerButton');
-            const name = document.getElementById('regName').value;
-            const email = document.getElementById('regEmail').value;
-            const pass = document.getElementById('regPass').value;
-            const confirm = document.getElementById('regPassConfirm').value;
-
-            setResendVisibility(false);
-            registerButton.disabled = true;
-
-            if (!name || !email || !pass) {
-                registerButton.disabled = false;
-                return alert('Please fill in all fields so we can create your account smoothly. ✍️');
-            }
-            if (pass !== confirm) {
-                registerButton.disabled = false;
-                return alert('Your passwords do not match yet. Please double-check and try again.');
-            }
-
-            try {
-                const response = await fetch(`${apiBaseUrl}/signup`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        username: name,
-                        email: email, 
-                        password: pass 
-                    }) 
-                });
-
-                const data = await response.json();
-                registerButton.disabled = false;
-
-                if (!response.ok) {
-                    // Check specifically for unverified account conflict
-                    if (response.status === 409 && /unverified account/i.test(data.message || '')) {
-                        showStatus(data.message, 'warning');
-                        setResendVisibility(true);
-                        return;
-                    }
-                    return alert(data.message || data.error || "We couldn't complete sign-up right now. Please try again.");
-                }
-
-                // Persist session data
-                if (data.user?.email) localStorage.setItem('currentUserEmail', data.user.email);
-                if (data.user?.username) localStorage.setItem('currentUserName', data.user.username);
-                if (data.token) localStorage.setItem('authToken', data.token);
-
-                if (data.verificationEmailSent === false) {
-                    showStatus('Account created, but verification email failed to send. Use resend below.', 'warning');
-                    setResendVisibility(true);
-                    return;
-                }
-
-                showStatus('Check your email to verify your account before signing in.', 'success');
-                setResendVisibility(false);
-
-            } catch (err) {
-                registerButton.disabled = false;
-                console.error("Connection error:", err);
-                return alert('We could not connect to the server. Please ensure the backend is running on port 5000.');
-            }
-        }
-
-        async function handleResendVerification() {
-            const email = document.getElementById('regEmail').value;
-
-            if (!email) {
-                return alert('Please enter the email address you used during registration. 📧');
-            }
-
-            try {
-                const response = await fetch(`${apiBaseUrl}/resend-verification`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    return showStatus(data.message || 'Unable to resend verification email.', 'error');
-                }
-
-                showStatus(data.message || 'Verification email resent. Check your inbox.', 'success');
-                setResendVisibility(false);
-            } catch (error) {
-                console.error("Connection error:", error);
-                return alert('Server connection failed. Please check whether the backend is running.');
-            }
-        }
-    </script>
 </body>
 </html>

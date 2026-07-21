@@ -178,6 +178,60 @@ body.dark-theme [style*="#64748b"] {
 
 }
 
+.otp-panel {
+    margin-top: 10px;
+    padding: 18px;
+    border-radius: 14px;
+    border: 2px dashed #9a6a3f;
+    background: linear-gradient(145deg, rgba(255, 245, 236, 0.95), rgba(255, 252, 247, 0.95));
+    box-shadow: inset 0 0 0 1px rgba(146, 95, 47, 0.14);
+}
+
+.otp-title {
+    margin: 0 0 6px 0;
+    font-size: 1.12rem;
+    color: #4a2f1e;
+}
+
+.otp-subtitle {
+    margin: 0 0 12px 0;
+    font-size: 0.9rem;
+    color: #6b4f3f;
+}
+
+.otp-input {
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    letter-spacing: 0.32em;
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.otp-resend-btn {
+    margin-top: 10px;
+    background: #a05f0f;
+}
+
+:root[data-theme="dark"] .otp-panel,
+:root.dark-mode .otp-panel,
+body.dark-mode .otp-panel {
+    border-color: #b25f5f;
+    background: linear-gradient(145deg, rgba(57, 34, 34, 0.95), rgba(44, 30, 30, 0.95));
+    box-shadow: inset 0 0 0 1px rgba(201, 103, 103, 0.25);
+}
+
+:root[data-theme="dark"] .otp-title,
+:root.dark-mode .otp-title,
+body.dark-mode .otp-title {
+    color: #ffd8d8;
+}
+
+:root[data-theme="dark"] .otp-subtitle,
+:root.dark-mode .otp-subtitle,
+body.dark-mode .otp-subtitle {
+    color: #f2c9c9;
+}
+
 .theme-toggle {
     border: 1px solid var(--border);
     background: var(--card-bg);

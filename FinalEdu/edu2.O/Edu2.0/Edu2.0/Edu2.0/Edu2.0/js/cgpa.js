@@ -1,6 +1,11 @@
 let courses = [];
 const dirtyCourseIds = new Set();
-const ACADEMIC_API_BASE = 'https://edusync-life-1.onrender.com/api/academic';
+const API_BASE_URL = window.API_BASE_URL || 'https://edusync-life-1.onrender.com';
+const getApiUrl = window.getApiUrl || function (endpoint) {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    return `${API_BASE_URL}${cleanEndpoint}`;
+};
+const ACADEMIC_API_BASE = getApiUrl('/api/academic');
 let persistedStrategicTotalGPA = null;
 
 const gpaPoints = {
@@ -114,7 +119,7 @@ function updateStrategistTotalGPA() {
 }
 
 async function fetchRemoteStrategistSettings(token) {
-    const response = await fetch(`${ACADEMIC_API_BASE}/strategist-settings`, {
+    const response = await fetch(getApiUrl('/api/academic/strategist-settings'), {
         headers: { Authorization: `Bearer ${token}` }
     });
 
@@ -312,7 +317,7 @@ async function saveCourseToCloud(courseId) {
         const plannerTotalEl = document.getElementById('plannerTotalGPA');
         const strategicTotalGPA = plannerTotalEl ? toNumber(plannerTotalEl.innerText, 0) : 0;
 
-        const response = await fetch(`${ACADEMIC_API_BASE}/strategist-settings`, {
+        const response = await fetch(getApiUrl('/api/academic/strategist-settings'), {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
