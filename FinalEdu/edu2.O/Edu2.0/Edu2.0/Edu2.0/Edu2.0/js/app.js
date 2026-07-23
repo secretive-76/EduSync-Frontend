@@ -201,6 +201,8 @@ function displayWelcome() {
     }
 }
 
+const DEFAULT_API_BASE_URL = 'https://edusync-life-1.onrender.com';
+
 function resolveApiBaseUrl() {
     const configuredBase = typeof window.API_BASE_URL === 'string' ? window.API_BASE_URL.trim() : '';
     if (configuredBase) {
@@ -212,7 +214,7 @@ function resolveApiBaseUrl() {
         return 'http://localhost:5000';
     }
 
-    return origin.replace(/\/+$/, '');
+    return DEFAULT_API_BASE_URL;
 }
 
 function normalizeApiEndpoint(endpoint = '') {
