@@ -4,10 +4,50 @@ let eventsByDate = {};
 let allEvents = [];
 let editingEventId = null;
 
-const API_ROOT = window.API_BASE_URL || 'https://edusync-life-1.onrender.com';
-const getApiUrl = window.getApiUrl || function (endpoint) {
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    return `${API_ROOT}${cleanEndpoint}`;
+const resolveApiBaseUrl = window.resolveApiBaseUrl || function () {
+    const configuredBase = typeof window.API_BASE_URL === 'string' ? window.API_BASE_URL.trim() : '';
+    if (configuredBase) {
+        return configuredBase.replace(/\/+$/, '');
+    }
+
+    const { protocol, hostname, origin } = window.location;
+    if (protocol === 'file:' || ['localhost', '127.0.0.1', '::1'].includes(hostname)) {
+        return 'http://localhost:5000';
+    }
+
+    return origin.replace(/\/+$/, '');
+};
+const API_ROOT = resolveApiBaseUrl();
+const getApiUrl = window.getApiUrl || function (endpoint = '', params) {
+    const baseUrl = API_ROOT;
+    const rawEndpoint = String(endpoint).trim();
+    const normalizedEndpoint = rawEndpoint
+        ? (/^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(rawEndpoint)
+            ? rawEndpoint
+            : (() => {
+                const [pathPart, queryPart = ''] = rawEndpoint.split('?');
+                const cleanPath = pathPart.replace(/^\/+|\/+$/g, '');
+                const normalizedPath = cleanPath ? `/${cleanPath}` : '';
+                return queryPart ? `${normalizedPath}?${queryPart}` : normalizedPath;
+            })())
+        : '';
+
+    if (!params) {
+        return normalizedEndpoint ? `${baseUrl}${normalizedEndpoint}` : baseUrl;
+    }
+
+    const [pathPart, existingQuery = ''] = normalizedEndpoint.split('?');
+    const queryParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === '') {
+            return;
+        }
+        queryParams.set(key, String(value));
+    });
+
+    const queryString = queryParams.toString();
+    const mergedQuery = [existingQuery, queryString].filter(Boolean).join('&');
+    return mergedQuery ? `${baseUrl}${pathPart}?${mergedQuery}` : `${baseUrl}${pathPart}`;
 };
 const API_BASE = getApiUrl('/api/calendar');
 
@@ -155,7 +195,7 @@ async function fetchMonthEvents() {
     const month = currentDate.getMonth() + 1;
 
     try {
-        const response = await fetch(getApiUrl(`/api/calendar?year=${year}&month=${month}`), {
+        const response = await fetch(getApiUrl('/api/calendar', { year, month }), {
             headers: { Authorization: `Bearer ${token}` }
         });
         const result = await response.json();

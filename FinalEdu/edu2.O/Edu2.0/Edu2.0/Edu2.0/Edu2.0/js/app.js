@@ -201,15 +201,78 @@ function displayWelcome() {
     }
 }
 
-window.API_BASE_URL = window.API_BASE_URL || 'https://edusync-life-1.onrender.com';
-const API_BASE_URL = window.API_BASE_URL;
-function getApiUrl(endpoint) {
-    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    return `${API_BASE_URL}${cleanEndpoint}`;
+function resolveApiBaseUrl() {
+    const configuredBase = typeof window.API_BASE_URL === 'string' ? window.API_BASE_URL.trim() : '';
+    if (configuredBase) {
+        return configuredBase.replace(/\/+$/, '');
+    }
+
+    const { protocol, hostname, origin } = window.location;
+    if (protocol === 'file:' || ['localhost', '127.0.0.1', '::1'].includes(hostname)) {
+        return 'http://localhost:5000';
+    }
+
+    return origin.replace(/\/+$/, '');
 }
 
-window.API_BASE_URL = API_BASE_URL;
+function normalizeApiEndpoint(endpoint = '') {
+    const rawEndpoint = String(endpoint).trim();
+    if (!rawEndpoint) {
+        return '';
+    }
+
+    if (/^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(rawEndpoint)) {
+        return rawEndpoint;
+    }
+
+    const [pathPart, queryPart = ''] = rawEndpoint.split('?');
+    const cleanPath = pathPart.replace(/^\/+|\/+$/g, '');
+    const normalizedPath = cleanPath ? `/${cleanPath}` : '';
+    return queryPart ? `${normalizedPath}?${queryPart}` : normalizedPath;
+}
+
+function buildQueryString(params) {
+    if (!params) {
+        return '';
+    }
+
+    if (params instanceof URLSearchParams) {
+        const serialized = params.toString();
+        return serialized ? `?${serialized}` : '';
+    }
+
+    const searchParams = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+        if (value === undefined || value === null || value === '') {
+            return;
+        }
+        searchParams.set(key, String(value));
+    });
+
+    const serialized = searchParams.toString();
+    return serialized ? `?${serialized}` : '';
+}
+
+function getApiUrl(endpoint = '', params) {
+    const baseUrl = resolveApiBaseUrl();
+    const normalizedEndpoint = normalizeApiEndpoint(endpoint);
+
+    if (!params) {
+        return normalizedEndpoint ? `${baseUrl}${normalizedEndpoint}` : baseUrl;
+    }
+
+    const [pathPart, existingQuery = ''] = normalizedEndpoint.split('?');
+    const queryString = buildQueryString(params).replace(/^\?/, '');
+    const mergedQuery = [existingQuery, queryString].filter(Boolean).join('&');
+
+    return mergedQuery ? `${baseUrl}${pathPart}?${mergedQuery}` : `${baseUrl}${pathPart}`;
+}
+
+window.API_BASE_URL = resolveApiBaseUrl();
+window.resolveApiBaseUrl = resolveApiBaseUrl;
 window.getApiUrl = getApiUrl;
+
+const API_BASE_URL = window.API_BASE_URL;
 
 const AUTH_API_BASE = `${API_BASE_URL}/api/auth`;
 const FINANCE_API_BASE = `${API_BASE_URL}/api/finance`;
@@ -534,7 +597,7 @@ async function updateDashboard() {
     if (token) {
         try {
             const [financeResponse, academicResponse] = await Promise.all([
-                fetch(getApiUrl(`/api/finance/summary?year=${currentYear}&month=${currentMonth}`), {
+                fetch(getApiUrl('/api/finance/summary', { year: currentYear, month: currentMonth }), {
                     headers: { Authorization: `Bearer ${token}` }
                 }),
                 fetch(getApiUrl('/api/academic/summary'), {
@@ -623,10 +686,10 @@ async function updateDashboard() {
 
     try {
         const [eventsRes, routineRes] = await Promise.all([
-            fetch(getApiUrl(`/api/calendar?fromDate=${todayDateStr}&limit=3`), {
+            fetch(getApiUrl('/api/calendar', { fromDate: todayDateStr, limit: 3 }), {
                 headers: { Authorization: `Bearer ${token}` }
             }),
-            fetch(getApiUrl(`/api/routine?dayOfWeek=${currentDayOfWeek}`), {
+            fetch(getApiUrl('/api/routine', { dayOfWeek: currentDayOfWeek }), {
                 headers: { Authorization: `Bearer ${token}` }
             })
         ]);
@@ -1023,7 +1086,7 @@ async function loadRoutineTasksForAlarm() {
 
     try {
         const dayOfWeek = getCurrentDayKey();
-        const response = await fetch(getApiUrl(`/api/routine?dayOfWeek=${dayOfWeek}&alarmEnabled=true`), {
+        const response = await fetch(getApiUrl('/api/routine', { dayOfWeek, alarmEnabled: true }), {
             headers: { Authorization: `Bearer ${token}` },
             signal: AbortSignal.timeout(5000)
         });
