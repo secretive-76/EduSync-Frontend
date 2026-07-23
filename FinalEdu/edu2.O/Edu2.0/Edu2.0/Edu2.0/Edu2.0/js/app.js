@@ -209,7 +209,7 @@ function resolveApiBaseUrl() {
         return configuredBase.replace(/\/+$/, '');
     }
 
-    const { protocol, hostname, origin } = window.location;
+    const { protocol, hostname } = window.location;
     if (protocol === 'file:' || ['localhost', '127.0.0.1', '::1'].includes(hostname)) {
         return 'http://localhost:5000';
     }

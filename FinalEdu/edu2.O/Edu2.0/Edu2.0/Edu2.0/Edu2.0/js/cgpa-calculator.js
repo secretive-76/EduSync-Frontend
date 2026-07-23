@@ -1,3 +1,5 @@
+const DEFAULT_API_BASE_URL = 'https://edusync-life-1.onrender.com';
+
 const gradePoints = {
     'A+': 4.0,
     A: 3.75,
@@ -17,12 +19,12 @@ const resolveApiBaseUrl = window.resolveApiBaseUrl || function () {
         return configuredBase.replace(/\/+$/, '');
     }
 
-    const { protocol, hostname, origin } = window.location;
+    const { protocol, hostname } = window.location;
     if (protocol === 'file:' || ['localhost', '127.0.0.1', '::1'].includes(hostname)) {
         return 'http://localhost:5000';
     }
 
-    return origin.replace(/\/+$/, '');
+    return DEFAULT_API_BASE_URL;
 };
 const API_ROOT = resolveApiBaseUrl();
 const getApiUrl = window.getApiUrl || function (endpoint = '', params) {
